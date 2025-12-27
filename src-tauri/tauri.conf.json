@@ -12,7 +12,8 @@
   "app": {
     "windows": [
       {
-        "title": "godot-hub",
+        "decorations": false,
+        "title": "Godot Hub",
         "width": 800,
         "height": 600
       }
