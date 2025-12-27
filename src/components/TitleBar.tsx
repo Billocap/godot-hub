@@ -13,9 +13,7 @@ import { Else, If, Then } from "react-if";
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
 
-  const appWindow = useMemo(() => {
-    return getCurrentWindow();
-  }, []);
+  const appWindow = useMemo(() => getCurrentWindow(), []);
 
   useEffect(() => {
     appWindow

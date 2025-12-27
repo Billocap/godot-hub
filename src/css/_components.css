@@ -14,7 +14,11 @@
 }
 
 .button {
-  @apply rounded py-2 px-4 transition-colors cursor-pointer;
+  @apply whitespace-nowrap rounded py-2 px-4 transition-colors cursor-pointer flex items-center gap-2;
+}
+
+.badge {
+  @apply text-xs text-gray-500 bg-gray-200 rounded-sm flex items-center gap-1 px-[2px];
 }
 
 .main-content {
