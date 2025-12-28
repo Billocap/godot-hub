@@ -26,6 +26,31 @@
     "dialog:default",
     "os:default",
     "os:allow-arch",
-    "os:allow-platform"
+    "os:allow-platform",
+    "fs:default",
+    {
+      "identifier": "fs:allow-read",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    }
   ]
 }

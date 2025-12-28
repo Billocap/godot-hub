@@ -12,5 +12,5 @@ body {
 
 #root,
 main {
-  @apply flex items-stretch size-full;
+  @apply flex items-stretch size-full overflow-hidden;
 }

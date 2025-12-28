@@ -14,7 +14,7 @@
 }
 
 .button {
-  @apply whitespace-nowrap rounded py-2 px-4 transition-colors cursor-pointer flex items-center gap-2;
+  @apply whitespace-nowrap rounded py-2 px-4 transition-all cursor-pointer flex items-center gap-2;
 }
 
 .badge {
@@ -22,7 +22,7 @@
 }
 
 .main-content {
-  @apply size-full flex flex-col items-stretch;
+  @apply size-full flex flex-col items-stretch overflow-hidden;
 
   .title-bar {
     @apply flex items-center justify-end border-b gap-4;
