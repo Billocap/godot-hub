@@ -2,6 +2,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { BookIcon, FolderIcon } from "lucide-react";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
+import { useSettings } from "../hooks/useSettings";
 import VersionPage from "../pages/VersionPage";
 
 import "../css/main.css";
@@ -9,6 +10,8 @@ import "../css/main.css";
 import TitleBar from "./TitleBar";
 
 export default function App() {
+  const { settings } = useSettings();
+
   return (
     <TabGroup
       as="main"
@@ -31,7 +34,7 @@ export default function App() {
       <TabPanels className="main-content">
         <TitleBar />
         <TabPanel className="content">
-          <VersionPage />
+          <VersionPage defaultFolder={settings.versions_folder} />
         </TabPanel>
         <TabPanel className="content">pro</TabPanel>
       </TabPanels>

@@ -20,5 +20,5 @@ export default function classList(...classes: any[]) {
     }
   });
 
-  return validClasses.join(" ").replaceAll(/\s\s+/g, " ").trim();
+  return validClasses.join(" ").replace(/\s\s+/g, " ").trim();
 }

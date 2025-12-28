@@ -21,29 +21,40 @@ const repo = {
   repo: "godot",
 };
 
-export default function VersionPage() {
+interface VersionPageProps {
+  defaultFolder: string;
+}
+
+export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
   const [versions, setVersions] = useState<any[]>([]);
   const [installedVersions, setInstalledVersions] = useState<any[]>([]);
-  const [currentFolder, setCurrentFolder] = useState("");
+  const [currentFolder, setCurrentFolder] = useState(defaultFolder);
 
   const chooseDirectory = useCallback(async () => {
-    const config = {
+    const folder = await open({
       directory: true,
-    };
+    });
 
-    const folder = await open(config);
-
-    const instaledVersions = await invoke<any[]>("list_versions", {
-      folder,
+    invoke("update_settings", {
+      settings: {
+        versions_folder: folder,
+      },
     });
 
     setCurrentFolder(folder as string);
-    setInstalledVersions(instaledVersions);
   }, [currentFolder]);
 
   useEffect(() => {
     octokit.repos.listReleases(repo).then((res) => setVersions(res.data));
   }, []);
+
+  useEffect(() => {
+    invoke<any[]>("list_versions", {
+      folder: currentFolder,
+    }).then((installedVersions) => {
+      setInstalledVersions(installedVersions);
+    });
+  }, [currentFolder]);
 
   return (
     <div className="flex flex-col items-stretch gap-8">
@@ -54,18 +65,20 @@ export default function VersionPage() {
             Current Folder:
             <span className="text-gray-500">{currentFolder}</span>
           </span>
-          <Button
-            className="bg-transparent hover:bg-gray-200"
-            onClick={() => {
-              openPath(currentFolder);
-            }}
-          >
-            <FolderIcon
-              size={16}
-              strokeWidth={2.5}
-            />
-            Open Folder
-          </Button>
+          <When condition={currentFolder.length}>
+            <Button
+              className="bg-transparent hover:bg-gray-200"
+              onClick={() => {
+                openPath(currentFolder);
+              }}
+            >
+              <FolderIcon
+                size={16}
+                strokeWidth={2.5}
+              />
+              Open Folder
+            </Button>
+          </When>
           <Button
             className="bg-gray-900 text-gray-100 hover:bg-gray-800"
             onClick={() => {
@@ -80,20 +93,24 @@ export default function VersionPage() {
           </Button>
         </div>
       </div>
-      <div className="flex flex-col items-stretch gap-4">
-        <p className="text-2xl border-b">Installed Versions</p>
-        {installedVersions.map((path) => (
-          <div
-            className="flex flex-col items-stretch gap-1"
-            key={path.name}
-          >
-            <div className="flex items-center gap-1">{path.name}</div>
-            <div className="text-xs text-gray-500 flex items-center gap-1">
-              <span>{moment(path.created_at).format("HH:mm MM/DD/YYYY")}</span>
+      <When condition={currentFolder.length}>
+        <div className="flex flex-col items-stretch gap-4">
+          <p className="text-2xl border-b">Installed Versions</p>
+          {installedVersions.map((path) => (
+            <div
+              className="flex flex-col items-stretch gap-1"
+              key={path.name}
+            >
+              <div className="flex items-center gap-1">{path.name}</div>
+              <div className="text-xs text-gray-500 flex items-center gap-1">
+                <span>
+                  {moment(path.created_at).format("HH:mm MM/DD/YYYY")}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </When>
       <div className="flex flex-col items-stretch gap-4">
         <p className="text-2xl border-b">Available Versions</p>
         {versions.map((ver) => (
