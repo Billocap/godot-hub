@@ -8,7 +8,9 @@ pub fn list_versions(folder: String) -> Vec<version_controller::FolderData> {
 #[tauri::command]
 pub async fn download_version(
   url: String,
-  target: String
+  target: String,
+  asset_name: String,
+  version: String
 ) -> Result<(), String> {
-  version_controller::download_version(url, target).await
+  version_controller::download_version(url, target, asset_name, version).await
 }

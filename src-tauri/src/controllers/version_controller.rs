@@ -1,7 +1,9 @@
-use std::fs;
+use std::{ fs::{ self, File }, path::{ PathBuf } };
 
 use regex::Regex;
+use reqwest::Version;
 use tauri::webview::cookie::time::{ format_description, OffsetDateTime };
+use zip::ZipArchive;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct FolderData {
@@ -46,10 +48,30 @@ pub fn list_versions(folder: String) -> Vec<FolderData> {
 
 pub async fn download_version(
   url: String,
-  target: String
+  target: String,
+  asset_name: String,
+  version: String
 ) -> Result<(), String> {
   let response = reqwest::get(url).await.map_err(|e| e.to_string())?;
   let bytes = response.bytes().await.map_err(|e| e.to_string())?;
 
-  fs::write(target, bytes).map_err(|e| e.to_string())
+  let mut target_path = PathBuf::from(target.clone());
+
+  target_path.push(asset_name);
+
+  fs::write(target_path.clone(), bytes).map_err(|e| e.to_string())?;
+
+  let reader = File::open(&target_path).map_err(|e| e.to_string())?;
+
+  let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
+
+  let mut result_path = PathBuf::from(target.clone());
+
+  result_path.push(version);
+
+  archive.extract(result_path).map_err(|e| e.to_string())?;
+
+  fs::remove_file(&target_path).map_err(|e| e.to_string())?;
+
+  Ok(())
 }

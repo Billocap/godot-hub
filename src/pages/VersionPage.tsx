@@ -15,10 +15,10 @@ import { When } from "react-if";
 
 import Badge from "../components/Badge";
 import Button from "../components/Button";
+import { useSettings } from "../hooks/useSettings";
 import octokit from "../services/octokit";
 
 import GodotLogo from "../assets/godot-dark-outline.svg?react";
-import { useSettings } from "../hooks/useSettings";
 
 const repo = {
   owner: "godotengine",
@@ -29,30 +29,35 @@ interface AvailableVersionProps {
   version: any;
   platform: string;
   arch: string;
+  onDownloaded(): void;
 }
 
-function AvailableVersion({ version, platform, arch }: AvailableVersionProps) {
+function AvailableVersion({
+  version,
+  platform,
+  arch,
+  onDownloaded,
+}: AvailableVersionProps) {
   const { settings } = useSettings();
   const regularTag = useMemo(() => `Godot_v${version.name}_`, [version]);
-
-  useEffect(() => {
-    console.log(arch);
-  }, [arch]);
 
   const regularAssets = useMemo(() => {
     const assets: any[] = [];
 
     for (const asset of version.assets) {
+      const name = asset.name as string;
+
       if (
-        asset.name.endsWith(".zip") &&
-        asset.name.startsWith(regularTag + platform)
+        name.endsWith(".zip") &&
+        name.startsWith(regularTag + platform) &&
+        name.includes(arch)
       ) {
         assets.push(asset);
       }
     }
 
     return assets;
-  }, [version]);
+  }, [version, platform, arch]);
 
   const monoTag = useMemo(() => `Godot_v${version.name}_mono_`, [version]);
 
@@ -60,16 +65,19 @@ function AvailableVersion({ version, platform, arch }: AvailableVersionProps) {
     const assets: any[] = [];
 
     for (const asset of version.assets) {
+      const name = asset.name as string;
+
       if (
-        asset.name.endsWith(".zip") &&
-        asset.name.startsWith(monoTag + platform)
+        name.endsWith(".zip") &&
+        name.startsWith(monoTag + platform) &&
+        name.includes(arch)
       ) {
         assets.push(asset);
       }
     }
 
     return assets;
-  }, [version]);
+  }, [version, platform, arch]);
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -98,7 +106,7 @@ function AvailableVersion({ version, platform, arch }: AvailableVersionProps) {
           <span>{moment(version.created_at).format("HH:mm MM/DD/YYYY")}</span>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <div className="flex">
           {regularAssets.map((asset) => (
             <button
@@ -107,8 +115,10 @@ function AvailableVersion({ version, platform, arch }: AvailableVersionProps) {
               onClick={() => {
                 invoke("download_version", {
                   url: asset.browser_download_url,
-                  target: `${settings.versions_folder}/${asset.name}`,
-                });
+                  target: settings.versions_folder,
+                  assetName: asset.name,
+                  version: version.name,
+                }).finally(onDownloaded);
               }}
             >
               <GodotLogo className="size-6 text-gray-500" />
@@ -127,8 +137,10 @@ function AvailableVersion({ version, platform, arch }: AvailableVersionProps) {
               onClick={() => {
                 invoke("download_version", {
                   url: asset.browser_download_url,
-                  target: `${settings.versions_folder}/${asset.name}`,
-                });
+                  target: settings.versions_folder,
+                  assetName: asset.name,
+                  version: `${version.name}-mono`,
+                }).finally(onDownloaded);
               }}
             >
               <p className="text-lg text-gray-500 font-bold">.NET</p>
@@ -168,7 +180,24 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
     }
   }, []);
 
-  const currentArch = useMemo(() => arch(), []);
+  const currentArch = useMemo(() => {
+    const a = arch();
+    const p = currentPlatform;
+
+    switch (a) {
+      case "x86":
+        return `${p}32`;
+
+      case "x86_64":
+        return `${p}64`;
+
+      case "arm":
+        return "arm64";
+
+      default:
+        return "";
+    }
+  }, [currentPlatform]);
 
   const chooseDirectory = useCallback(async () => {
     const folder = await open({
@@ -272,6 +301,13 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
               version={ver}
               platform={currentPlatform}
               arch={currentArch}
+              onDownloaded={() => {
+                invoke<any[]>("list_versions", {
+                  folder: currentFolder,
+                }).then((installedVersions) => {
+                  setInstalledVersions(installedVersions);
+                });
+              }}
             />
           </When>
         ))}
