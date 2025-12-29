@@ -3,14 +3,13 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
 import { FolderIcon, FolderPlusIcon } from "lucide-react";
-import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
 
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
-import octokit from "../services/octokit";
 import InstalledVersion from "../components/InstalledVersion";
+import octokit from "../services/octokit";
 
 const repo = {
   owner: "godotengine",

@@ -13,14 +13,13 @@ import GodotLogo from "../assets/godot-dark.svg?react";
 import Spinner from "./Spinner";
 
 interface AssetProps {
-  title: string;
   asset: any;
   version: any;
   children: any;
   onDownloaded(): void;
 }
 
-function Asset({ title, asset, version, children, onDownloaded }: AssetProps) {
+function Asset({ asset, version, children, onDownloaded }: AssetProps) {
   const [isInstalling, setIsInstalling] = useState(false);
 
   const installVersion = () => {
@@ -144,10 +143,6 @@ export default function AvailableVersion({
             key={asset.id}
             asset={asset}
             version={version.name}
-            title={asset.name
-              .replace(regularTag, "")
-              .replace("windows_", "")
-              .replace(".zip", "")}
             onDownloaded={onDownloaded}
           >
             <GodotLogo className="size-6 text-gray-500" />
@@ -158,10 +153,6 @@ export default function AvailableVersion({
             key={asset.id}
             asset={asset}
             version={`${version.name}-mono`}
-            title={asset.name
-              .replace(monoTag, "")
-              .replace("windows_", "")
-              .replace(".zip", "")}
             onDownloaded={onDownloaded}
           >
             <DotNetLogo className="size-6 text-gray-500" />
