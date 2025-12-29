@@ -10,6 +10,7 @@ import { When } from "react-if";
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
 import octokit from "../services/octokit";
+import InstalledVersion from "../components/InstalledVersion";
 
 const repo = {
   owner: "godotengine",
@@ -130,18 +131,18 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
       <When condition={currentFolder.length}>
         <div className="flex flex-col items-stretch gap-2">
           <p className="text-2xl border-b">Installed Versions</p>
-          {installedVersions.map((path) => (
-            <div
-              key={path.name}
-              className="flex flex-col items-stretch gap-1"
-            >
-              <div className="flex items-center gap-1">{path.name}</div>
-              <div className="text-xs text-gray-500 flex items-center gap-1">
-                <span>
-                  {moment(path.created_at).format("HH:mm MM/DD/YYYY")}
-                </span>
-              </div>
-            </div>
+          {installedVersions.map((version) => (
+            <InstalledVersion
+              key={version.name}
+              version={version}
+              onUpdate={() => {
+                invoke<any[]>("list_versions", {
+                  folder: currentFolder,
+                }).then((installedVersions) => {
+                  setInstalledVersions(installedVersions);
+                });
+              }}
+            />
           ))}
         </div>
       </When>

@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { filesize } from "filesize";
 import { ArrowBigDownIcon, ArrowBigUpIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
@@ -51,7 +52,7 @@ function Asset({ title, asset, version, children, onDownloaded }: AssetProps) {
         </Then>
         <Else>{children}</Else>
       </If>
-      {title}
+      {filesize(asset.size)}
     </button>
   );
 }

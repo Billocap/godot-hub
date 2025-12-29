@@ -35,6 +35,9 @@ importers:
       axios:
         specifier: ^1.13.2
         version: 1.13.2
+      filesize:
+        specifier: ^11.0.13
+        version: 11.0.13
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.3)
@@ -993,6 +996,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  filesize@11.0.13:
+    resolution: {integrity: sha512-mYJ/qXKvREuO0uH8LTQJ6v7GsUvVOguqxg2VTwQUkyTPXXRRWPdjuUPVqdBrJQhvci48OHlNGRnux+Slr2Rnvw==}
+    engines: {node: '>= 10.8.0'}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -2178,6 +2185,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  filesize@11.0.13: {}
 
   follow-redirects@1.15.11: {}
 

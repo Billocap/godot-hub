@@ -14,7 +14,7 @@
 }
 
 .button {
-  @apply whitespace-nowrap rounded py-2 px-4 transition-all cursor-pointer flex items-center gap-2;
+  @apply whitespace-nowrap rounded py-2 px-4 transition-all cursor-pointer flex items-center gap-1;
 }
 
 .badge {

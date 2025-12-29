@@ -17,6 +17,8 @@ pub fn run() {
       tauri::generate_handler![
         handler::version_handler::list_versions,
         handler::version_handler::download_version,
+        handler::version_handler::remove_version,
+        handler::version_handler::get_editor,
         handler::settings_handler::load_settings,
         handler::settings_handler::update_settings
       ]
