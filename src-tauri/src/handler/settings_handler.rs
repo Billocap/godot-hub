@@ -1,22 +1,11 @@
-use tauri::Manager;
-
 use crate::controllers::settings_controller;
 
 #[tauri::command]
-pub fn load_settings(
-  app: tauri::AppHandle
-) -> Result<settings_controller::ConfigData, String> {
-  let home_path = app.path().home_dir().unwrap();
-
-  settings_controller::read_config(&home_path)
+pub fn load_settings() -> Result<settings_controller::Settings, String> {
+  settings_controller::STATE.lock().unwrap().read_config()
 }
 
 #[tauri::command]
-pub fn update_settings(
-  app: tauri::AppHandle,
-  settings: settings_controller::ConfigData
-) {
-  let home_path = app.path().home_dir().unwrap();
-
-  settings_controller::write_config(&home_path, &settings).unwrap();
+pub fn update_settings(settings: settings_controller::Settings) {
+  let _s = settings_controller::STATE.lock().unwrap().write_config(&settings);
 }

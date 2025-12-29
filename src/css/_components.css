@@ -45,3 +45,7 @@
     @apply p-8 lg:p-16 overflow-y-auto overflow-x-hidden;
   }
 }
+
+.spinner {
+  @apply animate-spin border-2 rounded-full border-gray-300 border-b-black w-8 h-8 shrink-0;
+}

@@ -10,10 +10,10 @@ interface SettingsProviderProps {
 }
 
 export default function SettingsProvider({ children }: SettingsProviderProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<any>({
     versions_folder: "",
   });
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     invoke("load_settings")

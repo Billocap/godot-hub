@@ -1,3 +1,7 @@
+use tauri::Manager;
+
+use crate::controllers::settings_controller;
+
 mod controllers;
 mod handler;
 
@@ -17,6 +21,14 @@ pub fn run() {
         handler::settings_handler::update_settings
       ]
     )
+    .setup(move |a| {
+      settings_controller::STATE
+        .lock()
+        .unwrap()
+        .update_config_path(&a.path().home_dir().unwrap());
+
+      Ok(())
+    })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

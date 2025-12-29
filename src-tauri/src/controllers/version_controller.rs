@@ -1,7 +1,6 @@
 use std::{ fs::{ self, File }, path::{ PathBuf } };
 
 use regex::Regex;
-use reqwest::Version;
 use tauri::webview::cookie::time::{ format_description, OffsetDateTime };
 use zip::ZipArchive;
 

@@ -16,11 +16,14 @@ export default function TitleBar() {
   const appWindow = useMemo(() => getCurrentWindow(), []);
 
   useEffect(() => {
-    appWindow
-      .isMaximized()
-      .then(setIsMaximized)
-      .catch(() => setIsMaximized(false));
-  });
+    appWindow.onResized(async () => {
+      try {
+        setIsMaximized(await appWindow.isMaximized());
+      } catch (_) {
+        setIsMaximized(false);
+      }
+    });
+  }, [appWindow]);
 
   return (
     <div
