@@ -8,11 +8,13 @@ import GodotLogo from "../assets/godot-dark.svg?react";
 import Button from "./Button";
 
 interface InstalledVersionProps {
+  id: number;
   version: any;
   onUpdate(): void;
 }
 
 export default function InstalledVersion({
+  id,
   version,
   onUpdate,
 }: InstalledVersionProps) {
@@ -24,11 +26,11 @@ export default function InstalledVersion({
           className="cursor-pointer flex items-center gap-1 w-fit"
           onClick={() => openPath(version.path)}
         >
-          {version.name}
           <FolderIcon
             size={12}
             className="text-gray-500"
           />
+          {version.name}
         </span>
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>{moment(version.created_at).format("HH:mm MM/DD/YYYY")}</span>
@@ -38,9 +40,7 @@ export default function InstalledVersion({
       <div className="flex items-center gap-2">
         <Button
           onClick={() => {
-            invoke("get_editor", {
-              path: version.path,
-            }).then(console.log);
+            invoke("get_editor", { id }).then(console.log);
           }}
         >
           <GodotLogo className="size-4 text-gray-500" />
@@ -49,9 +49,7 @@ export default function InstalledVersion({
         <Button
           className="text-red-500 hover:bg-red-500/10"
           onClick={() => {
-            invoke("remove_version", {
-              path: version.path,
-            }).finally(onUpdate);
+            invoke("remove_version", { id }).finally(onUpdate);
           }}
         >
           <Trash2Icon size={16} />

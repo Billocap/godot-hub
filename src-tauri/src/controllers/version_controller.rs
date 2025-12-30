@@ -1,118 +1,160 @@
-use std::{ fs::{ self, File }, io, path::PathBuf, thread::panicking };
+use std::{ fs::{ self, File }, path::PathBuf, sync::{ LazyLock, Mutex } };
 
 use regex::Regex;
 use tauri::webview::cookie::time::{ format_description, OffsetDateTime };
 use zip::ZipArchive;
 
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct FolderData {
-  name: String,
-  path: String,
-  created_at: String,
+use crate::controllers::settings_controller;
+
+const VERSION_REGEX: &str = r"^v?\d+\.\d+(\.\d+)?-stable";
+const EXE_REGEX: &str = r"^[Gg]odot_v?\d+\.\d+(\.\d+)?-stable(_mono)?";
+const DATA_FORMAT: &str = "[year]-[month]-[day] [hour]:[minute]:[second]";
+
+pub static STATE: LazyLock<Mutex<VersionController>> = LazyLock::new(|| {
+  let controller = VersionController {
+    versions: vec![],
+  };
+
+  Mutex::new(controller)
+});
+
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
+pub struct VersionData {
+  pub name: String,
+  pub path: String,
+  pub editor_path: String,
+  pub created_at: String,
 }
 
-pub fn list_versions(folder: String) -> Vec<FolderData> {
-  let paths = fs::read_dir(folder).unwrap();
-  let mut result: Vec<FolderData> = vec![];
-  let version_regex = Regex::new(r"^v?\d+\.\d+(\.\d+)?-.*").unwrap();
-  let date_format = format_description
-    ::parse("[year]-[month]-[day] [hour]:[minute]:[second]")
-    .unwrap();
+impl VersionData {}
 
-  for path in paths {
-    let entry = path.unwrap().path();
+#[derive(Clone)]
+pub struct VersionController {
+  pub versions: Vec<VersionData>,
+}
 
-    if entry.is_dir() {
-      let folder_name = entry.file_name().unwrap().to_str().unwrap().to_owned();
+impl VersionController {
+  pub fn list_versions(&mut self) -> Result<Vec<VersionData>, String> {
+    let path = settings_controller::STATE
+      .lock()
+      .unwrap()
+      .settings.versions_folder.clone();
+    let contents = fs::read_dir(path).map_err(|e| e.to_string())?;
+    let mut result: Vec<VersionData> = vec![];
+    let version_regex = Regex::new(VERSION_REGEX).map_err(|e| e.to_string())?;
+    let date_format = format_description
+      ::parse(DATA_FORMAT)
+      .map_err(|e| e.to_string())?;
 
-      if version_regex.is_match(&folder_name) {
-        let created_at: OffsetDateTime = entry
-          .metadata()
+    for content in contents {
+      let entry = content.map_err(|e| e.to_string())?.path();
+
+      if entry.is_dir() {
+        let folder_name = entry
+          .file_name()
           .unwrap()
-          .created()
+          .to_str()
           .unwrap()
-          .into();
+          .to_owned();
 
-        let data = FolderData {
-          name: folder_name,
-          path: entry.as_os_str().to_str().unwrap().to_owned(),
-          created_at: created_at.format(&date_format).unwrap(),
-        };
+        if version_regex.is_match(&folder_name) {
+          let created_at: OffsetDateTime = entry
+            .metadata()
+            .map_err(|e| e.to_string())?
+            .created()
+            .map_err(|e| e.to_string())?
+            .into();
 
-        result.push(data);
+          let data = VersionData {
+            name: folder_name,
+            path: entry.as_os_str().to_str().unwrap().to_owned(),
+            editor_path: get_editor(entry)?,
+            created_at: created_at
+              .format(&date_format)
+              .map_err(|e| e.to_string())?,
+          };
+
+          result.push(data);
+        }
       }
     }
+
+    self.versions = result.clone();
+
+    Ok(result)
   }
 
-  result
+  pub async fn install_version(
+    &self,
+    url: String,
+    asset_name: String,
+    version: String
+  ) -> Result<(), String> {
+    let target = settings_controller::STATE
+      .lock()
+      .map_err(|e| e.to_string())?
+      .settings.versions_folder.clone();
+    let bytes = reqwest
+      ::get(url).await
+      .map_err(|e| e.to_string())?
+      .bytes().await
+      .map_err(|e| e.to_string())?;
+
+    let mut target_path = PathBuf::from(&target);
+
+    target_path.push(asset_name);
+
+    fs::write(&target_path, bytes).map_err(|e| e.to_string())?;
+
+    let reader = File::open(&target_path).map_err(|e| e.to_string())?;
+
+    let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
+
+    let mut result_path = PathBuf::from(&target);
+
+    result_path.push(version);
+
+    archive.extract(result_path).map_err(|e| e.to_string())?;
+
+    fs::remove_file(&target_path).map_err(|e| e.to_string())
+  }
+
+  pub fn remove_version(
+    &mut self,
+    id: usize
+  ) -> Result<Vec<VersionData>, String> {
+    let removed = self.versions.remove(id);
+
+    fs::remove_dir_all(removed.path).map_err(|e| e.to_string())?;
+
+    Ok(self.versions.clone())
+  }
 }
 
-pub async fn install_version(
-  url: String,
-  target: String,
-  asset_name: String,
-  version: String
-) -> Result<(), String> {
-  let response = reqwest::get(url).await.map_err(|e| e.to_string())?;
-  let bytes = response.bytes().await.map_err(|e| e.to_string())?;
-
-  let mut target_path = PathBuf::from(target.clone());
-
-  target_path.push(asset_name);
-
-  fs::write(target_path.clone(), bytes).map_err(|e| e.to_string())?;
-
-  let reader = File::open(&target_path).map_err(|e| e.to_string())?;
-
-  let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
-
-  let mut result_path = PathBuf::from(target.clone());
-
-  result_path.push(version);
-
-  archive.extract(result_path).map_err(|e| e.to_string())?;
-
-  fs::remove_file(&target_path).map_err(|e| e.to_string())?;
-
-  Ok(())
-}
-
-pub fn remove_version(path: String) -> io::Result<()> {
-  fs::remove_dir_all(path)
-}
-
-pub fn get_editor(folder: String) -> Result<String, String> {
+fn get_editor(folder: PathBuf) -> Result<String, String> {
+  let exe_regex = Regex::new(EXE_REGEX).unwrap();
   let contents = fs::read_dir(folder).map_err(|e| e.to_string())?;
 
   for content in contents {
-    let entry = match content {
-      Ok(data) => data.path(),
-      Err(e) => {
-        return Err(e.to_string());
-      }
-    };
-    let path = entry.as_os_str().to_str().unwrap();
+    let entry = content.map_err(|e| e.to_string())?.path();
+    let path = entry.as_os_str().to_str().unwrap().to_owned();
+    let file_name = entry.file_name().unwrap().to_str().unwrap();
 
-    if entry.is_file() && path.ends_with(".exe") {
-      return Ok(path.to_owned());
+    if
+      entry.is_file() &&
+      exe_regex.is_match(file_name) &&
+      !file_name.contains("console")
+    {
+      return Ok(path);
     }
 
     if entry.is_dir() {
-      let sub_contents = fs::read_dir(&entry).map_err(|e| e.to_string())?;
-
-      for sub_child in sub_contents {
-        let sub_entry = match sub_child {
-          Ok(data) => data.path(),
-          Err(e) => {
-            return Err(e.to_string());
-          }
-        };
-        let sub_path = sub_entry.as_os_str().to_str().unwrap();
-
-        if sub_entry.is_file() && sub_path.ends_with(".exe") {
-          return Ok(sub_path.to_owned());
+      match get_editor(entry) {
+        Ok(data) => {
+          return Ok(data);
         }
-      }
+        Err(_) => {}
+      };
     }
   }
 

@@ -1,10 +1,13 @@
 use std::process::Command;
 
-use crate::controllers::{ settings_controller, version_controller };
+use crate::controllers::version_controller;
 
 #[tauri::command]
-pub fn list_versions(folder: String) -> Vec<version_controller::FolderData> {
-  version_controller::list_versions(folder)
+pub fn list_versions() -> Result<Vec<version_controller::VersionData>, String> {
+  version_controller::STATE
+    .lock()
+    .map_err(|e| e.to_string())?
+    .list_versions()
 }
 
 #[tauri::command]
@@ -13,25 +16,36 @@ pub async fn download_version(
   asset_name: String,
   version: String
 ) -> Result<(), String> {
-  let target = {
-    let guard = settings_controller::STATE.lock().unwrap();
-
-    guard.settings.versions_folder.clone()
+  let controller = {
+    version_controller::STATE
+      .lock()
+      .map_err(|e| e.to_string())?
+      .clone()
   };
 
-  version_controller::install_version(url, target, asset_name, version).await
+  controller.install_version(url, asset_name, version).await
 }
 
 #[tauri::command]
-pub fn remove_version(path: String) -> Result<(), String> {
-  version_controller::remove_version(path).map_err(|e| e.to_string())
+pub fn remove_version(
+  id: usize
+) -> Result<Vec<version_controller::VersionData>, String> {
+  version_controller::STATE
+    .lock()
+    .map_err(|e| e.to_string())?
+    .remove_version(id)
 }
 
 #[tauri::command]
-pub fn get_editor(path: String) -> Result<String, String> {
-  let editor = version_controller::get_editor(path)?;
+pub fn get_editor(id: usize) -> Result<String, String> {
+  let editor = version_controller::STATE
+    .lock()
+    .map_err(|e| e.to_string())?
+    .versions.get(id)
+    .unwrap()
+    .editor_path.clone();
 
-  let _c = Command::new(editor.clone())
+  let _c = Command::new(&editor)
     .spawn()
     .map_err(|e| e.to_string())?;
 

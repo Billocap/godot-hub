@@ -1,12 +1,26 @@
 import { invoke } from "@tauri-apps/api/core";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Else, If, Then } from "react-if";
 
-const SettingsContext = createContext<any>({});
+import Spinner from "../components/Spinner";
+
+interface SettingsContext {
+  settings: any;
+  isLoading: boolean;
+}
+
+const SettingsContext = createContext({} as SettingsContext);
 
 export const useSettings = () => useContext(SettingsContext);
 
 interface SettingsProviderProps {
-  children: any;
+  children: ReactNode;
 }
 
 export default function SettingsProvider({ children }: SettingsProviderProps) {
@@ -21,14 +35,21 @@ export default function SettingsProvider({ children }: SettingsProviderProps) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const context = {
+  const context: SettingsContext = {
     settings,
     isLoading,
   };
 
   return (
     <SettingsContext.Provider value={context}>
-      {isLoading ? null : children}
+      <If condition={isLoading}>
+        <Then>
+          <div className="size-full flex items-center justify-center">
+            <Spinner className="size-16 border-4" />
+          </div>
+        </Then>
+        <Else>{children}</Else>
+      </If>
     </SettingsContext.Provider>
   );
 }

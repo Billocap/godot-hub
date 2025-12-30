@@ -117,11 +117,11 @@ export default function AvailableVersion({
           rel="noopener noreferrer"
           className="flex items-center gap-1 w-fit"
         >
-          {version.name}
           <LinkIcon
             size={12}
             className="text-gray-500"
           />
+          {version.name}
         </a>
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <Badge>

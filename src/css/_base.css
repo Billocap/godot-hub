@@ -14,3 +14,7 @@ body {
 main {
   @apply flex items-stretch size-full overflow-hidden;
 }
+
+h1 {
+  @apply border-b text-3xl py-2;
+}

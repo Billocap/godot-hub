@@ -2,13 +2,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
-import { FolderIcon, FolderPlusIcon } from "lucide-react";
+import { BookIcon, FolderIcon, FolderPlusIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
 
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
 import InstalledVersion from "../components/InstalledVersion";
+import AppPage from "../layout/AppPage";
 import octokit from "../services/octokit";
 
 const repo = {
@@ -83,19 +84,18 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
 
   useEffect(() => {
     if (currentFolder) {
-      invoke<any[]>("list_versions", {
-        folder: currentFolder,
-      }).then((installedVersions) => {
+      invoke<any[]>("list_versions").then((installedVersions) => {
         setInstalledVersions(installedVersions);
       });
     }
   }, [currentFolder]);
 
   return (
-    <div className="flex flex-col items-stretch gap-8">
-      <div className="flex flex-col items-stretch gap-4">
-        <span className="border-b text-3xl py-2">Version Manager</span>
-        <div className="flex items-center gap-4">
+    <AppPage
+      icon={() => <BookIcon />}
+      title="Version Manager"
+      headerChildren={() => (
+        <div className="flex items-center gap-4 justify-between">
           <span
             className="flex items-center gap-1 w-full whitespace-nowrap overflow-hidden cursor-pointer"
             onClick={() => {
@@ -126,18 +126,18 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
             Select Folder
           </Button>
         </div>
-      </div>
+      )}
+    >
       <When condition={currentFolder.length}>
         <div className="flex flex-col items-stretch gap-2">
           <p className="text-2xl border-b">Installed Versions</p>
-          {installedVersions.map((version) => (
+          {installedVersions.map((version, id) => (
             <InstalledVersion
               key={version.name}
+              id={id}
               version={version}
               onUpdate={() => {
-                invoke<any[]>("list_versions", {
-                  folder: currentFolder,
-                }).then((installedVersions) => {
+                invoke<any[]>("list_versions").then((installedVersions) => {
                   setInstalledVersions(installedVersions);
                 });
               }}
@@ -157,9 +157,7 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
               platform={currentPlatform}
               arch={currentArch}
               onDownloaded={() => {
-                invoke<any[]>("list_versions", {
-                  folder: currentFolder,
-                }).then((installedVersions) => {
+                invoke<any[]>("list_versions").then((installedVersions) => {
                   setInstalledVersions(installedVersions);
                 });
               }}
@@ -167,6 +165,6 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
           </When>
         ))}
       </div>
-    </div>
+    </AppPage>
   );
 }
