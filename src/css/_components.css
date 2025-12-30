@@ -9,7 +9,7 @@
 
   .tab-selector {
     @apply cursor-pointer transition-colors px-4 py-2 outline-0 flex items-center gap-1;
-    @apply data-selected:bg-gray-400;
+    @apply data-selected:bg-gray-300;
   }
 }
 
@@ -18,7 +18,7 @@
 }
 
 .badge {
-  @apply text-xs text-gray-500 bg-gray-200 rounded-sm flex items-center gap-1 px-[2px];
+  @apply text-xs text-gray-500 bg-gray-200 rounded-sm inline-flex items-center gap-1 px-[2px];
 }
 
 .main-content {

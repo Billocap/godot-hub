@@ -9,6 +9,8 @@ mod handler;
 pub fn run() {
   tauri::Builder
     ::default()
+    .plugin(tauri_plugin_clipboard_manager::init())
+    .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_dialog::init())
@@ -18,7 +20,8 @@ pub fn run() {
         handler::version_handler::list_versions,
         handler::version_handler::download_version,
         handler::version_handler::remove_version,
-        handler::version_handler::get_editor,
+        handler::version_handler::start_editor,
+        handler::version_handler::start_console,
         handler::settings_handler::load_settings,
         handler::settings_handler::update_settings
       ]

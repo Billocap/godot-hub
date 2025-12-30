@@ -3,13 +3,14 @@ import { filesize } from "filesize";
 import { ArrowBigDownIcon, ArrowBigUpIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
-import { Else, If, Then } from "react-if";
+import { Else, If, Then, When } from "react-if";
 
 import Badge from "../components/Badge";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
 
+import Button from "./Button";
 import Spinner from "./Spinner";
 
 interface AssetProps {
@@ -41,8 +42,9 @@ function Asset({ asset, version, children, onDownloaded }: AssetProps) {
   };
 
   return (
-    <button
-      className="cursor-pointer flex flex-col items-center gap-1 p-2 text-xs text-gray-500"
+    <Button
+      disabled={isInstalling}
+      className="py-0 px-2 flex-col text-xs text-gray-500"
       onClick={() => installVersion()}
     >
       <If condition={isInstalling}>
@@ -52,7 +54,7 @@ function Asset({ asset, version, children, onDownloaded }: AssetProps) {
         <Else>{children}</Else>
       </If>
       {filesize(asset.size)}
-    </button>
+    </Button>
   );
 }
 
@@ -108,7 +110,7 @@ export default function AvailableVersion({
   }, [version, platform, arch]);
 
   return (
-    <div className="flex items-center justify-between px-2 transition-colors hover:bg-gray-200/50 rounded-lg">
+    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors border border-transparent hover:bg-gray-200/25 hover:border-gray-200 rounded-lg">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <a
@@ -123,16 +125,60 @@ export default function AvailableVersion({
           />
           {version.name}
         </a>
+        <div className="flex items-center gap-1">
+          <When condition={version.reactions["+1"]}>
+            <Badge>
+              <ArrowBigUpIcon size={12} />
+              {version.reactions["+1"]}
+            </Badge>
+          </When>
+          <When condition={version.reactions["-1"]}>
+            <Badge>
+              <ArrowBigDownIcon size={12} />
+              {version.reactions["-1"]}
+            </Badge>
+          </When>
+          <When condition={version.reactions.confused}>
+            <Badge>
+              🤔
+              {version.reactions.confused}
+            </Badge>
+          </When>
+          <When condition={version.reactions.laugh}>
+            <Badge>
+              😂
+              {version.reactions.laugh}
+            </Badge>
+          </When>
+          <When condition={version.reactions.hooray}>
+            <Badge>
+              🎉
+              {version.reactions.hooray}
+            </Badge>
+          </When>
+          <When condition={version.reactions.heart}>
+            <Badge>
+              ❤️
+              {version.reactions.heart}
+            </Badge>
+          </When>
+          <When condition={version.reactions.rocket}>
+            <Badge>
+              🚀
+              {version.reactions.rocket}
+            </Badge>
+          </When>
+          <When condition={version.reactions.eyes}>
+            <Badge>
+              👀
+              {version.reactions.eyes}
+            </Badge>
+          </When>
+        </div>
         <div className="text-xs text-gray-500 flex items-center gap-1">
-          <Badge>
-            <ArrowBigUpIcon size={12} />
-            {version.reactions["+1"]}
-          </Badge>
-          <Badge>
-            <ArrowBigDownIcon size={12} />
-            {version.reactions["-1"]}
-          </Badge>
-          <span>{moment(version.created_at).format("HH:mm MM/DD/YYYY")}</span>
+          <span>
+            Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
+          </span>
         </div>
       </div>
       {/* Version Info */}

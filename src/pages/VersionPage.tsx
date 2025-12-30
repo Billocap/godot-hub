@@ -106,7 +106,7 @@ export default function VersionPage({ defaultFolder = "" }: VersionPageProps) {
             <span className="inline lg:hidden">
               <FolderIcon
                 size={16}
-                className="text-gray-700"
+                className="text-gray-400"
               />
             </span>
             <span className="text-gray-500 overflow-hidden text-ellipsis">

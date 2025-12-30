@@ -28,4 +28,6 @@ tauri-plugin-os = "2"
 tauri-plugin-fs = "2"
 reqwest = "0.12.28"
 zip = "2.2"
+tauri-plugin-notification = "2"
+tauri-plugin-clipboard-manager = "2"
 

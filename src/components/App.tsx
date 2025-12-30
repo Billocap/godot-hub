@@ -1,9 +1,8 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { BookIcon, FolderIcon } from "lucide-react";
+import { BookIcon } from "lucide-react";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
 import { useSettings } from "../hooks/useSettings";
-import AppPage from "../layout/AppPage";
 import VersionPage from "../pages/VersionPage";
 
 import TitleBar from "./TitleBar";
@@ -20,26 +19,17 @@ export default function App() {
           Hub
         </div>
         <Tab className="tab-selector">
-          <BookIcon size={14} />
+          <BookIcon
+            size={14}
+            className="text-gray-500"
+          />
           Versions
-        </Tab>
-        <Tab className="tab-selector">
-          <FolderIcon size={14} />
-          Projects
         </Tab>
       </TabList>
       <TabPanels className="main-content">
         <TitleBar />
         <TabPanel className="content">
           <VersionPage defaultFolder={settings.versions_folder} />
-        </TabPanel>
-        <TabPanel className="content">
-          <AppPage
-            title="Project Manager"
-            icon={() => <FolderIcon />}
-          >
-            asdf
-          </AppPage>
         </TabPanel>
       </TabPanels>
     </TabGroup>

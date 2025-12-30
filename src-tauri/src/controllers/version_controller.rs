@@ -11,9 +11,7 @@ const EXE_REGEX: &str = r"^[Gg]odot_v?\d+\.\d+(\.\d+)?-stable(_mono)?";
 const DATA_FORMAT: &str = "[year]-[month]-[day] [hour]:[minute]:[second]";
 
 pub static STATE: LazyLock<Mutex<VersionController>> = LazyLock::new(|| {
-  let controller = VersionController {
-    versions: vec![],
-  };
+  let controller = VersionController { versions: vec![] };
 
   Mutex::new(controller)
 });
@@ -22,7 +20,10 @@ pub static STATE: LazyLock<Mutex<VersionController>> = LazyLock::new(|| {
 pub struct VersionData {
   pub name: String,
   pub path: String,
+  pub size: u64,
   pub editor_path: String,
+  pub console_path: String,
+  pub updated_at: String,
   pub created_at: String,
 }
 
@@ -58,17 +59,26 @@ impl VersionController {
           .to_owned();
 
         if version_regex.is_match(&folder_name) {
-          let created_at: OffsetDateTime = entry
-            .metadata()
-            .map_err(|e| e.to_string())?
+          let metadata = entry.metadata().map_err(|e| e.to_string())?;
+          let created_at: OffsetDateTime = metadata
             .created()
             .map_err(|e| e.to_string())?
             .into();
+          let updated_at: OffsetDateTime = metadata
+            .modified()
+            .map_err(|e| e.to_string())?
+            .into();
+          let (editor_path, console_path, size) = get_folder_data(&entry)?;
 
           let data = VersionData {
             name: folder_name,
             path: entry.as_os_str().to_str().unwrap().to_owned(),
-            editor_path: get_editor(entry)?,
+            editor_path: editor_path,
+            console_path: console_path,
+            size: size,
+            updated_at: updated_at
+              .format(&date_format)
+              .map_err(|e| e.to_string())?,
             created_at: created_at
               .format(&date_format)
               .map_err(|e| e.to_string())?,
@@ -119,44 +129,51 @@ impl VersionController {
     fs::remove_file(&target_path).map_err(|e| e.to_string())
   }
 
-  pub fn remove_version(
-    &mut self,
-    id: usize
-  ) -> Result<Vec<VersionData>, String> {
+  pub fn remove_version(&mut self, id: usize) -> Result<VersionData, String> {
     let removed = self.versions.remove(id);
 
-    fs::remove_dir_all(removed.path).map_err(|e| e.to_string())?;
+    fs::remove_dir_all(removed.path.clone()).map_err(|e| e.to_string())?;
 
-    Ok(self.versions.clone())
+    Ok(removed)
   }
 }
 
-fn get_editor(folder: PathBuf) -> Result<String, String> {
+fn get_folder_data(folder: &PathBuf) -> Result<(String, String, u64), String> {
   let exe_regex = Regex::new(EXE_REGEX).unwrap();
   let contents = fs::read_dir(folder).map_err(|e| e.to_string())?;
 
+  let mut editor_path = String::new();
+  let mut console_path = String::new();
+  let mut size: u64 = 0;
+
   for content in contents {
     let entry = content.map_err(|e| e.to_string())?.path();
-    let path = entry.as_os_str().to_str().unwrap().to_owned();
     let file_name = entry.file_name().unwrap().to_str().unwrap();
+    let file_size = entry
+      .metadata()
+      .map_err(|e| e.to_string())?
+      .len();
 
-    if
-      entry.is_file() &&
-      exe_regex.is_match(file_name) &&
-      !file_name.contains("console")
-    {
-      return Ok(path);
+    size += file_size;
+
+    if entry.is_file() && exe_regex.is_match(file_name) {
+      let path = entry.as_os_str().to_str().unwrap().to_owned();
+
+      if file_name.contains("console") {
+        console_path = path;
+      } else {
+        editor_path = path;
+      }
     }
 
     if entry.is_dir() {
-      match get_editor(entry) {
-        Ok(data) => {
-          return Ok(data);
-        }
-        Err(_) => {}
-      };
+      let (sub_editor, sub_console, sub_size) = get_folder_data(&entry)?;
+
+      editor_path = sub_editor;
+      console_path = sub_console;
+      size += sub_size;
     }
   }
 
-  Err(String::from("Not able to find editor exe!"))
+  Ok((editor_path, console_path, size))
 }
