@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { filesize } from "filesize";
 import { ArrowBigDownIcon, ArrowBigUpIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
@@ -6,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Else, If, Then, When } from "react-if";
 
 import Badge from "../components/Badge";
+import { useVersions } from "../hooks/useVersions";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
@@ -17,37 +17,31 @@ interface AssetProps {
   asset: any;
   version: any;
   children: any;
-  onDownloaded(): void;
 }
 
-function Asset({ asset, version, children, onDownloaded }: AssetProps) {
+function Asset({ asset, version, children }: AssetProps) {
+  const { installVersion, installing } = useVersions();
+
   const [isInstalling, setIsInstalling] = useState(false);
-
-  const installVersion = () => {
-    if (!isInstalling) {
-      const params = {
-        version,
-        url: asset.browser_download_url,
-        assetName: asset.name,
-      };
-
-      setIsInstalling(true);
-
-      invoke("download_version", params).finally(() => {
-        setIsInstalling(false);
-
-        onDownloaded();
-      });
-    }
-  };
 
   return (
     <Button
-      disabled={isInstalling}
+      disabled={isInstalling || asset.id in installing}
       className="py-0 px-2 flex-col text-xs text-gray-500"
-      onClick={() => installVersion()}
+      onClick={() => {
+        if (!isInstalling && !(asset.id in installing)) {
+          setIsInstalling(true);
+
+          installVersion(
+            asset.id,
+            version,
+            asset.browser_download_url,
+            asset.name
+          ).finally(() => setIsInstalling(false));
+        }
+      }}
     >
-      <If condition={isInstalling}>
+      <If condition={isInstalling || asset.id in installing}>
         <Then>
           <Spinner className="size-6" />
         </Then>
@@ -62,14 +56,12 @@ interface AvailableVersionProps {
   version: any;
   platform: string;
   arch: string;
-  onDownloaded(): void;
 }
 
 export default function AvailableVersion({
   version,
   platform,
   arch,
-  onDownloaded,
 }: AvailableVersionProps) {
   const regularTag = useMemo(() => `Godot_v${version.name}_`, [version]);
   const regularAssets = useMemo(() => {
@@ -189,7 +181,6 @@ export default function AvailableVersion({
             key={asset.id}
             asset={asset}
             version={version.name}
-            onDownloaded={onDownloaded}
           >
             <GodotLogo className="size-6 text-gray-500" />
           </Asset>
@@ -199,7 +190,6 @@ export default function AvailableVersion({
             key={asset.id}
             asset={asset}
             version={`${version.name}-mono`}
-            onDownloaded={onDownloaded}
           >
             <DotNetLogo className="size-6 text-gray-500" />
           </Asset>

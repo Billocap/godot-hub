@@ -11,8 +11,9 @@ import { Else, If, Then } from "react-if";
 import Spinner from "../components/Spinner";
 
 interface SettingsContext {
-  settings: any;
+  settings: Settings;
   isLoading: boolean;
+  dispatchSettings(callback: () => void): Promise<unknown>;
 }
 
 const SettingsContext = createContext({} as SettingsContext);
@@ -25,12 +26,12 @@ interface SettingsProviderProps {
 
 export default function SettingsProvider({ children }: SettingsProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<any>({
+  const [settings, setSettings] = useState<Settings>({
     versions_folder: "",
   });
 
   useEffect(() => {
-    invoke("load_settings")
+    invoke<Settings>("load_settings")
       .then(setSettings)
       .finally(() => setIsLoading(false));
   }, []);
@@ -38,6 +39,13 @@ export default function SettingsProvider({ children }: SettingsProviderProps) {
   const context: SettingsContext = {
     settings,
     isLoading,
+    dispatchSettings(callback) {
+      callback();
+
+      setSettings({ ...settings });
+
+      return invoke("update_settings", { settings });
+    },
   };
 
   return (

@@ -1,14 +1,17 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { BookIcon } from "lucide-react";
+import { listen } from "@tauri-apps/api/event";
+import { BookIcon, FolderIcon } from "lucide-react";
+import { useEffect } from "react";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
-import { useSettings } from "../hooks/useSettings";
 import VersionPage from "../pages/VersionPage";
 
 import TitleBar from "./TitleBar";
 
 export default function App() {
-  const { settings } = useSettings();
+  useEffect(() => {
+    listen("file_updated", console.log);
+  }, []);
 
   return (
     <TabGroup as="main">
@@ -25,12 +28,20 @@ export default function App() {
           />
           Versions
         </Tab>
+        <Tab className="tab-selector">
+          <FolderIcon
+            size={14}
+            className="text-gray-500"
+          />
+          Projects
+        </Tab>
       </TabList>
       <TabPanels className="main-content">
         <TitleBar />
         <TabPanel className="content">
-          <VersionPage defaultFolder={settings.versions_folder} />
+          <VersionPage />
         </TabPanel>
+        <TabPanel className="content">Pro</TabPanel>
       </TabPanels>
     </TabGroup>
   );

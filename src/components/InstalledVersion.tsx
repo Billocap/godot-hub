@@ -5,12 +5,12 @@ import { filesize } from "filesize";
 import { CopyIcon, FolderIcon, Trash2Icon } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
+import { Else, If, Then } from "react-if";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
 
 import Badge from "./Badge";
 import Button from "./Button";
-import { Else, If, Then } from "react-if";
 import Spinner from "./Spinner";
 
 interface InstalledVersionProps {

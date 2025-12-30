@@ -27,8 +27,6 @@ pub struct VersionData {
   pub created_at: String,
 }
 
-impl VersionData {}
-
 #[derive(Clone)]
 pub struct VersionController {
   pub versions: Vec<VersionData>,
@@ -98,23 +96,31 @@ impl VersionController {
     &self,
     url: String,
     asset_name: String,
-    version: String
+    version: String,
+    notify: impl Fn(&str)
   ) -> Result<(), String> {
     let target = settings_controller::STATE
       .lock()
       .map_err(|e| e.to_string())?
       .settings.versions_folder.clone();
+
+    notify("Downloading zip...");
+
     let bytes = reqwest
       ::get(url).await
       .map_err(|e| e.to_string())?
       .bytes().await
       .map_err(|e| e.to_string())?;
 
+    notify("Creating temp file...");
+
     let mut target_path = PathBuf::from(&target);
 
     target_path.push(asset_name);
 
     fs::write(&target_path, bytes).map_err(|e| e.to_string())?;
+
+    notify("Reading temp file...");
 
     let reader = File::open(&target_path).map_err(|e| e.to_string())?;
 
@@ -124,7 +130,11 @@ impl VersionController {
 
     result_path.push(version);
 
+    notify("Extracting ZIP...");
+
     archive.extract(result_path).map_err(|e| e.to_string())?;
+
+    notify("Cleaning Up...");
 
     fs::remove_file(&target_path).map_err(|e| e.to_string())
   }

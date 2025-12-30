@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use tauri::AppHandle;
+use tauri::{ AppHandle, Emitter };
 use tauri_plugin_notification::NotificationExt;
 
 use crate::controllers::version_controller;
@@ -16,18 +16,19 @@ pub fn list_versions() -> Result<Vec<version_controller::VersionData>, String> {
 #[tauri::command]
 pub async fn download_version(
   app: AppHandle,
+  id: usize,
   url: String,
   asset_name: String,
   version: String
 ) -> Result<(), String> {
-  let controller = {
-    version_controller::STATE
-      .lock()
-      .map_err(|e| e.to_string())?
-      .clone()
-  };
+  let controller = version_controller::STATE
+    .lock()
+    .map_err(|e| e.to_string())?
+    .clone();
 
-  controller.install_version(url, asset_name, version.clone()).await?;
+  controller.install_version(url, asset_name, version.clone(), |m| {
+    let _r = app.emit("file_updated", (id, m.to_owned()));
+  }).await?;
 
   app
     .notification()
