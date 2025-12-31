@@ -69,6 +69,7 @@ export default function InstalledVersion({
       {/* Version Info */}
       <div className="flex items-center gap-2">
         <Button
+          disabled={isDeleting}
           className="flex-col py-0 px-2 text-xs"
           onClick={() => {
             invoke("start_editor", { id });
