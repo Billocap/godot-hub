@@ -10,6 +10,7 @@ type ButtonProps = DetailedHTMLProps<
 export default function Button({ className, ...props }: ButtonProps) {
   return (
     <button
+      type="button"
       className={classList("button", className)}
       {...props}
     />

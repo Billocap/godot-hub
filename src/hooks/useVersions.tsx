@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import moment from "moment";
 import {
   createContext,
   ReactNode,
@@ -7,14 +8,13 @@ import {
   useState,
 } from "react";
 
+import VersionController from "../controllers/VersionController";
+
 import { useSettings } from "./useSettings";
-import { listen } from "@tauri-apps/api/event";
-import moment from "moment";
 
 interface VersionsContext {
   installing: Record<number, any>;
-  availableVersions: VersionData[];
-  installedVersions: VersionData[];
+  installedVersions: VersionController[];
   updateInstalled(): void;
   installVersion(
     id: number,
@@ -35,14 +35,15 @@ interface VersionsProviderProps {
 export default function VersionsProvider({ children }: VersionsProviderProps) {
   const { isLoading } = useSettings();
 
-  const [availableVersions, setAvailableVersions] = useState<VersionData[]>([]);
-  const [installedVersions, setInstalledVersions] = useState<VersionData[]>([]);
+  const [installedVersions, setInstalledVersions] = useState<
+    VersionController[]
+  >([]);
   const [installing, setInstalling] = useState<Record<number, any>>({});
 
   const updateInstalled = async () => {
     const installed = await invoke<VersionData[]>("list_versions");
 
-    setInstalledVersions(installed);
+    setInstalledVersions(installed.map(VersionController.from));
   };
 
   useEffect(() => {
@@ -53,42 +54,29 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
 
   const context: VersionsContext = {
     installing,
-    availableVersions,
     installedVersions,
     updateInstalled,
     async installVersion(id, version, url, assetName) {
-      const params = {
-        id,
-        version,
-        url,
-        assetName,
-      };
+      const params = { id, version, url, assetName };
 
       try {
-        const descriptor = {
-          version,
-          createdAt: moment().format("HH:mm MM/DD/YYYY"),
-          state: "Downloading...",
-          unlisten: await listen<[number, string]>("file_updated", (e) => {
-            if (id == e.payload[0]) {
-              descriptor.state = e.payload[1];
+        setInstalling((prev) => {
+          prev[id] = {
+            id,
+            name: version,
+            createdAt: moment().format("HH:mm MM/DD/YYYY"),
+          };
 
-              setInstalling({ ...installing });
-            }
-          }),
-        };
-
-        installing[id] = descriptor;
-
-        setInstalling({ ...installing });
+          return { ...prev };
+        });
 
         await invoke("download_version", params);
       } finally {
-        installing[id].unlisten();
+        setInstalling((prev) => {
+          delete prev[id];
 
-        delete installing[id];
-
-        setInstalling({ ...installing });
+          return { ...prev };
+        });
 
         updateInstalled();
       }

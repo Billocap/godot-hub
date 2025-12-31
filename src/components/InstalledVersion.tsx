@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Else, If, Then } from "react-if";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
+import VersionController from "../controllers/VersionController";
 
 import Badge from "./Badge";
 import Button from "./Button";
@@ -15,7 +16,7 @@ import Spinner from "./Spinner";
 
 interface InstalledVersionProps {
   id: number;
-  version: any;
+  version: VersionController;
   onUpdate(): void;
 }
 
@@ -45,7 +46,7 @@ export default function InstalledVersion({
           <Badge
             className="cursor-pointer"
             onClick={() => {
-              writeText(version.editor_path);
+              writeText(version.editorPath);
             }}
           >
             <CopyIcon size={12} /> Editor Path
@@ -53,7 +54,7 @@ export default function InstalledVersion({
           <Badge
             className="cursor-pointer"
             onClick={() => {
-              writeText(version.console_path);
+              writeText(version.consolePath);
             }}
           >
             <CopyIcon size={12} /> Console Path
@@ -61,7 +62,7 @@ export default function InstalledVersion({
         </span>
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>
-            Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
+            Created at: {moment(version.createdAt).format("HH:mm MM/DD/YYYY")}
           </span>
         </div>
       </div>
@@ -82,11 +83,13 @@ export default function InstalledVersion({
           onClick={() => {
             setIsDeleting(true);
 
-            invoke("remove_version", { id }).finally(() => {
-              setIsDeleting(false);
-
-              onUpdate();
-            });
+            invoke("remove_version", { id })
+              .catch((_) => {
+                setIsDeleting(false);
+              })
+              .finally(() => {
+                onUpdate();
+              });
           }}
         >
           <If condition={isDeleting}>

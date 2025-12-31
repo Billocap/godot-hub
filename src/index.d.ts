@@ -11,3 +11,42 @@ interface VersionData {
   updated_at: string;
   created_at: string;
 }
+
+interface Serializable<S extends Record<string | number, any>> {
+  /**
+   * Converts this controllers data to the format accepted by the server.
+   *
+   * Usually it involves converting `camelCase` to `snake_ase` and verifying
+   * none of the necessary keys are `null` or `undefined`.
+   *
+   * @returns An object formatted in the way accepted by the server.
+   */
+  serialize(): S;
+}
+
+interface Deserializable<S extends Record<string | number, any>> {
+  /**
+   * Converts the data to a format that can be assigned to a constructor.
+   *
+   * Usually it involves converting `snake_case` to `camelCase` and verifying
+   * none of the necessary keys are `null` or `undefined`.
+   *
+   * @param source An object in the way it was returned by the server.
+   *
+   * @returns A copy of this controller.
+   */
+  deserialize(source: S): this;
+}
+
+interface Cloneable<S extends Record<string | number, any>>
+  extends Serializable<S>,
+    Deserializable<S> {
+  /**
+   * Creates a copy of this controller.
+   *
+   * Uses the `serialize` and `deserialize` methods.
+   *
+   * @returns A copy of this controller.
+   */
+  clone(): typeof this;
+}

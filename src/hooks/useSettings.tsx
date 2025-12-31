@@ -9,9 +9,10 @@ import {
 import { Else, If, Then } from "react-if";
 
 import Spinner from "../components/Spinner";
+import SettingsController from "../controllers/SettingsController";
 
 interface SettingsContext {
-  settings: Settings;
+  settings: SettingsController;
   isLoading: boolean;
   dispatchSettings(callback: () => void): Promise<unknown>;
 }
@@ -26,13 +27,11 @@ interface SettingsProviderProps {
 
 export default function SettingsProvider({ children }: SettingsProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<Settings>({
-    versions_folder: "",
-  });
+  const [settings, setSettings] = useState(new SettingsController());
 
   useEffect(() => {
     invoke<Settings>("load_settings")
-      .then(setSettings)
+      .then((source) => setSettings(SettingsController.from(source)))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -42,9 +41,11 @@ export default function SettingsProvider({ children }: SettingsProviderProps) {
     dispatchSettings(callback) {
       callback();
 
-      setSettings({ ...settings });
+      setSettings(settings.clone());
 
-      return invoke("update_settings", { settings });
+      return invoke("update_settings", {
+        settings: settings.serialize(),
+      });
     },
   };
 

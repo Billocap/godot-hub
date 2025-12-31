@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use tauri::{ AppHandle, Emitter };
+use tauri::{ AppHandle, Emitter, Manager };
 use tauri_plugin_notification::NotificationExt;
 
 use crate::controllers::version_controller;
@@ -30,13 +30,21 @@ pub async fn download_version(
     let _r = app.emit("file_updated", (id, m.to_owned()));
   }).await?;
 
-  app
-    .notification()
-    .builder()
-    .title("New Version Installed!")
-    .body(format!("'{}' was installed successfully.", version))
-    .show()
-    .map_err(|e| e.to_string())?;
+  if
+    app
+      .get_webview_window("main")
+      .unwrap()
+      .is_minimized()
+      .map_err(|e| e.to_string())?
+  {
+    app
+      .notification()
+      .builder()
+      .title("New Version Installed!")
+      .body(format!("'{}' was installed successfully.", version))
+      .show()
+      .map_err(|e| e.to_string())?;
+  }
 
   Ok(())
 }
@@ -51,13 +59,21 @@ pub fn remove_version(
     .map_err(|e| e.to_string())?
     .remove_version(id)?;
 
-  app
-    .notification()
-    .builder()
-    .title("Godot Version Removed!")
-    .body(format!("'{}' was removed successfully.", removed.name))
-    .show()
-    .map_err(|e| e.to_string())?;
+  if
+    app
+      .get_webview_window("main")
+      .unwrap()
+      .is_minimized()
+      .map_err(|e| e.to_string())?
+  {
+    app
+      .notification()
+      .builder()
+      .title("Godot Version Removed!")
+      .body(format!("'{}' was removed successfully.", removed.name))
+      .show()
+      .map_err(|e| e.to_string())?;
+  }
 
   Ok(removed)
 }

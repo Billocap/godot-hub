@@ -7,6 +7,7 @@ import { When } from "react-if";
 
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
+import DownloadingVersion from "../components/DownloadingVersion";
 import InstalledVersion from "../components/InstalledVersion";
 import { useSettings } from "../hooks/useSettings";
 import { useVersions } from "../hooks/useVersions";
@@ -74,7 +75,7 @@ export default function VersionPage() {
           <span
             className="flex items-center gap-1 w-full whitespace-nowrap overflow-hidden cursor-pointer"
             onClick={() => {
-              openPath(settings.versions_folder);
+              openPath(settings.versionsFolder);
             }}
           >
             <span className="hidden lg:inline">Current Folder:</span>
@@ -85,7 +86,7 @@ export default function VersionPage() {
               />
             </span>
             <span className="text-gray-500 overflow-hidden text-ellipsis">
-              {settings.versions_folder}
+              {settings.versionsFolder}
             </span>
           </span>
           <Button
@@ -97,7 +98,7 @@ export default function VersionPage() {
 
               if (folder) {
                 dispatchSettings(() => {
-                  settings.versions_folder = folder;
+                  settings.versionsFolder = folder;
                 }).finally(updateInstalled);
               }
             }}
@@ -115,31 +116,19 @@ export default function VersionPage() {
         <div className="flex flex-col items-stretch gap-2">
           <p className="text-2xl border-b">Installing Versions</p>
           {Object.entries(installing).map(([id, v]) => (
-            <div
+            <DownloadingVersion
               key={id}
-              className="flex flex-col gap-1 p-2"
-            >
-              <span className="flex items-center gap-1">
-                <FolderIcon
-                  size={12}
-                  className="text-gray-500"
-                />
-                {v.version}
-              </span>
-              <span className="text-xs">{v.state}</span>
-              <div className="text-xs text-gray-500 flex items-center gap-1">
-                Started at: {v.createdAt}
-              </div>
-            </div>
+              version={v}
+            />
           ))}
         </div>
       </When>
-      <When condition={settings.versions_folder.length}>
+      <When condition={settings.versionsFolder.length}>
         <div className="flex flex-col items-stretch gap-2">
           <p className="text-2xl border-b">Installed Versions</p>
           {installedVersions.map((version, id) => (
             <InstalledVersion
-              key={version.name}
+              key={version.key}
               id={id}
               version={version}
               onUpdate={() => {
