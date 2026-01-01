@@ -52,6 +52,20 @@ function Asset({ asset, version, children }: AssetProps) {
   );
 }
 
+function AssetSkeleton() {
+  return (
+    <Button className="py-0 px-2 flex-col text-xs text-gray-500">
+      <div className="size-6 rounded bg-gray-200" />
+      <div
+        className="h-3 rounded bg-gray-200"
+        style={{
+          width: `${20 + Math.random() * 20}px`,
+        }}
+      />
+    </Button>
+  );
+}
+
 interface AvailableVersionProps {
   version: any;
   platform: string;
@@ -117,56 +131,72 @@ export default function AvailableVersion({
           />
           {version.name}
         </a>
-        <div className="flex items-center gap-1">
-          <When condition={version.reactions["+1"]}>
-            <Badge>
-              <ArrowBigUpIcon size={12} />
-              {version.reactions["+1"]}
-            </Badge>
+        {/* <div className="flex items-center gap-1">
+          <When condition={() => version.reactions["+1"]}>
+            {() => (
+              <Badge>
+                <ArrowBigUpIcon size={12} />
+                {version.reactions["+1"]}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions["-1"]}>
-            <Badge>
-              <ArrowBigDownIcon size={12} />
-              {version.reactions["-1"]}
-            </Badge>
+          <When condition={() => version.reactions["-1"]}>
+            {() => (
+              <Badge>
+                <ArrowBigDownIcon size={12} />
+                {version.reactions["-1"]}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.confused}>
-            <Badge>
-              🤔
-              {version.reactions.confused}
-            </Badge>
+          <When condition={() => version.reactions.confused}>
+            {() => (
+              <Badge>
+                🤔
+                {version.reactions.confused}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.laugh}>
-            <Badge>
-              😂
-              {version.reactions.laugh}
-            </Badge>
+          <When condition={() => version.reactions.laugh}>
+            {() => (
+              <Badge>
+                😂
+                {version.reactions.laugh}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.hooray}>
-            <Badge>
-              🎉
-              {version.reactions.hooray}
-            </Badge>
+          <When condition={() => version.reactions.hooray}>
+            {() => (
+              <Badge>
+                🎉
+                {version.reactions.hooray}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.heart}>
-            <Badge>
-              ❤️
-              {version.reactions.heart}
-            </Badge>
+          <When condition={() => version.reactions.heart}>
+            {() => (
+              <Badge>
+                ❤️
+                {version.reactions.heart}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.rocket}>
-            <Badge>
-              🚀
-              {version.reactions.rocket}
-            </Badge>
+          <When condition={() => version.reactions.rocket}>
+            {() => (
+              <Badge>
+                🚀
+                {version.reactions.rocket}
+              </Badge>
+            )}
           </When>
-          <When condition={version.reactions.eyes}>
-            <Badge>
-              👀
-              {version.reactions.eyes}
-            </Badge>
+          <When condition={() => version.reactions.eyes}>
+            {() => (
+              <Badge>
+                👀
+                {version.reactions.eyes}
+              </Badge>
+            )}
           </When>
-        </div>
+        </div> */}
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>
             Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
@@ -199,3 +229,35 @@ export default function AvailableVersion({
     </div>
   );
 }
+
+AvailableVersion.Skeleton = function () {
+  return (
+    <div className="animate-pulse overflow-hidden flex items-center justify-between p-2 border border-transparent">
+      {/* Version Info */}
+      <div className="flex flex-col items-stretch gap-1">
+        <div className="flex items-center gap-1 w-fit">
+          <LinkIcon
+            size={12}
+            className="text-gray-500"
+          />
+          <div
+            className="h-4 rounded bg-gray-200"
+            style={{
+              width: `${100 + Math.random() * 50}px`,
+            }}
+          />
+        </div>
+        <div className="text-xs text-gray-500 flex items-center gap-1">
+          <span>Created at: HH:mm MM/DD/YYYY</span>
+        </div>
+      </div>
+      {/* Version Info */}
+      {/* Download Links */}
+      <div className="flex items-center gap-2">
+        <AssetSkeleton />
+        <AssetSkeleton />
+      </div>
+      {/* Download Links */}
+    </div>
+  );
+};

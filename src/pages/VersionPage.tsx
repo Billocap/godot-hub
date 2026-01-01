@@ -1,9 +1,14 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
-import { BookIcon, FolderIcon, FolderPlusIcon } from "lucide-react";
+import {
+  BookIcon,
+  ChevronDownIcon,
+  FolderIcon,
+  FolderPlusIcon,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { When } from "react-if";
+import { Else, If, Then, When } from "react-if";
 
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
@@ -25,6 +30,7 @@ export default function VersionPage() {
 
   const [versions, setVersions] = useState<any[]>([]);
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   const currentPlatform = useMemo(() => {
     const p = platform();
@@ -61,9 +67,17 @@ export default function VersionPage() {
   }, [currentPlatform]);
 
   useEffect(() => {
-    octokit.repos
-      .listReleases({ ...repo, page })
-      .then((res) => setVersions((prev) => [...prev, ...res.data]));
+    setPage(1);
+  }, []);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    octokit.repos.listReleases({ ...repo, page }).then((res) => {
+      setVersions((prev) => (page > 1 ? [...prev, ...res.data] : res.data));
+
+      setIsLoading(false);
+    });
   }, [page]);
 
   return (
@@ -152,6 +166,17 @@ export default function VersionPage() {
             />
           </When>
         ))}
+        <When condition={isLoading}>
+          {new Array(30).fill(0).map((_, id) => (
+            <AvailableVersion.Skeleton key={id} />
+          ))}
+        </When>
+        <Button
+          className="justify-center hover:bg-gray-200"
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          <ChevronDownIcon />
+        </Button>
       </div>
     </AppPage>
   );

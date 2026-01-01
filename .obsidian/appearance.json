@@ -1,0 +1,8 @@
+{
+  "cssTheme": "Material Gruvbox",
+  "textFontFamily": "FiraCode Nerd Font Mono",
+  "monospaceFontFamily": "FiraCode Nerd Font Mono",
+  "showViewHeader": true,
+  "showRibbon": true,
+  "nativeMenus": false
+}
