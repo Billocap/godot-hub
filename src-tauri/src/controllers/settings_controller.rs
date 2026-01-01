@@ -5,6 +5,7 @@ const CONFIG_NAME: &str = "godot-hub.config.json";
 pub static STATE: LazyLock<Mutex<SettingsController>> = LazyLock::new(|| {
   let controller = SettingsController {
     config_path: PathBuf::new(),
+    cache_folder: PathBuf::new(),
     settings: Settings {
       versions_folder: String::new(),
     },
@@ -18,8 +19,10 @@ pub struct Settings {
   pub versions_folder: String,
 }
 
+#[derive(Clone)]
 pub struct SettingsController {
   pub settings: Settings,
+  pub cache_folder: PathBuf,
   pub config_path: PathBuf,
 }
 
@@ -30,6 +33,10 @@ impl SettingsController {
     self.config_path = home_path.clone();
 
     self.config_path.push(CONFIG_NAME);
+  }
+
+  pub fn update_cache_path(&mut self, cache_path: &PathBuf) {
+    self.cache_folder = cache_path.clone();
   }
 
   /// Reads the config file and updates the settings prop

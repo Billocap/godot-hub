@@ -12,7 +12,7 @@ interface VersionData {
   created_at: string;
 }
 
-interface Serializable<S extends Record<string | number, any>> {
+interface Serializable<S> {
   /**
    * Converts this controllers data to the format accepted by the server.
    *
@@ -24,7 +24,7 @@ interface Serializable<S extends Record<string | number, any>> {
   serialize(): S;
 }
 
-interface Deserializable<S extends Record<string | number, any>> {
+interface Deserializable<S> {
   /**
    * Converts the data to a format that can be assigned to a constructor.
    *
@@ -35,12 +35,10 @@ interface Deserializable<S extends Record<string | number, any>> {
    *
    * @returns A copy of this controller.
    */
-  deserialize(source: S): this;
+  deserialize(source: S): typeof this;
 }
 
-interface Cloneable<S extends Record<string | number, any>>
-  extends Serializable<S>,
-    Deserializable<S> {
+interface Cloneable<S> extends Serializable<S>, Deserializable<S> {
   /**
    * Creates a copy of this controller.
    *

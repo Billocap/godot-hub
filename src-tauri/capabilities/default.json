@@ -32,7 +32,7 @@
       "identifier": "fs:allow-read",
       "allow": [
         {
-          "path": "**"
+          "path": "$HOME"
         }
       ]
     },
@@ -40,7 +40,7 @@
       "identifier": "fs:allow-exists",
       "allow": [
         {
-          "path": "**"
+          "path": "$HOME"
         }
       ]
     },
@@ -48,7 +48,15 @@
       "identifier": "fs:allow-write",
       "allow": [
         {
-          "path": "**"
+          "path": "$HOME"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-copy-file",
+      "allow": [
+        {
+          "path": "$HOME"
         }
       ]
     },

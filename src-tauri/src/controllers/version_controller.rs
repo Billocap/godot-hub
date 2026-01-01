@@ -1,10 +1,10 @@
 use std::{ fs::{ self, File }, path::PathBuf, sync::{ LazyLock, Mutex } };
 
 use regex::Regex;
-use tauri::webview::cookie::time::{ format_description, OffsetDateTime };
+use tauri::{ webview::cookie::time::{ OffsetDateTime, format_description } };
 use zip::ZipArchive;
 
-use crate::controllers::settings_controller;
+use crate::{ controllers::settings_controller, utils::file_utils };
 
 const VERSION_REGEX: &str = r"^v?\d+\.\d+(\.\d+)?-stable";
 const EXE_REGEX: &str = r"^[Gg]odot_v?\d+\.\d+(\.\d+)?-stable(_mono)?";
@@ -99,10 +99,13 @@ impl VersionController {
     version: String,
     notify: impl Fn(&str)
   ) -> Result<(), String> {
-    let target = settings_controller::STATE
+    let settings = settings_controller::STATE
       .lock()
       .map_err(|e| e.to_string())?
-      .settings.versions_folder.clone();
+      .clone();
+
+    let target = settings.settings.versions_folder.clone();
+    let cache = settings.cache_folder.clone();
 
     notify("Downloading zip...");
 
@@ -114,9 +117,7 @@ impl VersionController {
 
     notify("Creating temp file...");
 
-    let mut target_path = PathBuf::from(&target);
-
-    target_path.push(asset_name);
+    let target_path: PathBuf = [&cache, &asset_name.into()].iter().collect();
 
     fs::write(&target_path, bytes).map_err(|e| e.to_string())?;
 
@@ -126,16 +127,23 @@ impl VersionController {
 
     let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
 
-    let mut result_path = PathBuf::from(&target);
+    let temp_result_path: PathBuf = [&cache, &version.clone().into()]
+      .iter()
+      .collect();
 
-    result_path.push(version);
+    let result_path: PathBuf = [&target, &version.clone().into()]
+      .iter()
+      .collect();
 
     notify("Extracting ZIP...");
 
-    archive.extract(result_path).map_err(|e| e.to_string())?;
+    archive.extract(&temp_result_path).map_err(|e| e.to_string())?;
+
+    file_utils::copy_folder(&temp_result_path, &result_path)?;
 
     notify("Cleaning Up...");
 
+    fs::remove_dir_all(&temp_result_path).map_err(|e| e.to_string())?;
     fs::remove_file(&target_path).map_err(|e| e.to_string())
   }
 

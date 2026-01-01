@@ -114,7 +114,7 @@ export default function VersionPage() {
     >
       <When condition={Object.entries(installing).length}>
         <div className="flex flex-col items-stretch gap-2">
-          <p className="text-2xl border-b">Installing Versions</p>
+          <p className="text-2xl border-b">Install Queue</p>
           {Object.entries(installing).map(([id, v]) => (
             <DownloadingVersion
               key={id}

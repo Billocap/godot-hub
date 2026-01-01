@@ -5,7 +5,7 @@ import { filesize } from "filesize";
 import { CopyIcon, FolderIcon, Trash2Icon } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
-import { Else, If, Then } from "react-if";
+import { Else, If, Then, Unless } from "react-if";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
 import VersionController from "../controllers/VersionController";
@@ -68,16 +68,18 @@ export default function InstalledVersion({
       </div>
       {/* Version Info */}
       <div className="flex items-center gap-2">
-        <Button
-          disabled={isDeleting}
-          className="flex-col py-0 px-2 text-xs"
-          onClick={() => {
-            invoke("start_editor", { id });
-          }}
-        >
-          <GodotLogo className="size-6 text-gray-500" />
-          Open Editor
-        </Button>
+        <Unless condition={isDeleting}>
+          <Button
+            disabled={isDeleting}
+            className="flex-col py-0 px-2 text-xs"
+            onClick={() => {
+              invoke("start_editor", { id });
+            }}
+          >
+            <GodotLogo className="size-6 text-gray-500" />
+            Open Editor
+          </Button>
+        </Unless>
         <Button
           disabled={isDeleting}
           className="flex-col py-0 px-2 text-xs text-red-500"

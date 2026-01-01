@@ -4,6 +4,7 @@ use crate::controllers::settings_controller;
 
 mod controllers;
 mod handler;
+mod utils;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,11 +27,11 @@ pub fn run() {
         handler::settings_handler::update_settings
       ]
     )
-    .setup(move |a| {
-      settings_controller::STATE
-        .lock()
-        .unwrap()
-        .update_config_path(&a.path().home_dir().unwrap());
+    .setup(move |app| {
+      let mut controller = settings_controller::STATE.lock().unwrap();
+
+      controller.update_config_path(&app.path().home_dir().unwrap());
+      controller.update_cache_path(&app.path().app_cache_dir().unwrap());
 
       Ok(())
     })
