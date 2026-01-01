@@ -1,14 +1,9 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
-import {
-  BookIcon,
-  ChevronDownIcon,
-  FolderIcon,
-  FolderPlusIcon,
-} from "lucide-react";
+import { BookIcon, FolderIcon, FolderPlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Else, If, Then, When } from "react-if";
+import { When } from "react-if";
 
 import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
@@ -24,13 +19,21 @@ const repo = {
   repo: "godot",
 };
 
+interface Pagination {
+  page: number;
+  canPaginate: boolean;
+}
+
 export default function VersionPage() {
   const { settings, dispatchSettings } = useSettings();
   const { installing, installedVersions, updateInstalled } = useVersions();
 
-  const [versions, setVersions] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    canPaginate: true,
+  });
 
   const currentPlatform = useMemo(() => {
     const p = platform();
@@ -66,19 +69,49 @@ export default function VersionPage() {
     }
   }, [currentPlatform]);
 
+  const fetchVersions = async (page = 1) => {
+    setIsLoading(true);
+
+    const { data, headers } = await octokit.repos.listReleases({
+      ...repo,
+      page,
+    });
+
+    setPagination({
+      page,
+      canPaginate: headers.link?.includes('rel="next"') ?? false,
+    });
+
+    setVersions((prev) => (page > 1 ? [...prev, ...data] : data));
+
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    setPage(1);
+    fetchVersions();
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
+    if (!isLoading && pagination.canPaginate) {
+      const options = {
+        capture: true,
+      };
+      const scrollHandler = (e: Event) => {
+        const target = e.target as HTMLDivElement;
+        const scrollHeight = target.scrollHeight - target.clientHeight - 500;
 
-    octokit.repos.listReleases({ ...repo, page }).then((res) => {
-      setVersions((prev) => (page > 1 ? [...prev, ...res.data] : res.data));
+        if (target.scrollTop >= scrollHeight) {
+          fetchVersions(pagination.page + 1);
+        }
+      };
 
-      setIsLoading(false);
-    });
-  }, [page]);
+      document.body.addEventListener("scroll", scrollHandler, options);
+
+      return () => {
+        document.body.removeEventListener("scroll", scrollHandler, options);
+      };
+    }
+  }, [isLoading, pagination]);
 
   return (
     <AppPage
@@ -171,12 +204,6 @@ export default function VersionPage() {
             <AvailableVersion.Skeleton key={id} />
           ))}
         </When>
-        <Button
-          className="justify-center hover:bg-gray-200"
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          <ChevronDownIcon />
-        </Button>
       </div>
     </AppPage>
   );
