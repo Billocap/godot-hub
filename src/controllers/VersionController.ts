@@ -6,6 +6,7 @@ export default class VersionController
   extends ControllerClass
   implements Cloneable<S>
 {
+  public id = "";
   public size = 0;
   public name = "Version";
 
@@ -17,10 +18,19 @@ export default class VersionController
   public createdAt = "";
 
   serialize(): S {
-    const { size, name, path, editorPath, consolePath, updatedAt, createdAt } =
-      this;
+    const {
+      id,
+      size,
+      name,
+      path,
+      editorPath,
+      consolePath,
+      updatedAt,
+      createdAt,
+    } = this;
 
     return {
+      id,
       size,
       name,
       path,
@@ -33,6 +43,7 @@ export default class VersionController
 
   deserialize(source: S): this {
     const {
+      id,
       size,
       name,
       path,
@@ -43,6 +54,7 @@ export default class VersionController
     } = source;
 
     return this.assign({
+      id,
       name,
       size,
       path,

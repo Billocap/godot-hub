@@ -5,7 +5,15 @@
 }
 
 .app-header {
-  @apply cursor-default select-none flex font-bold items-center justify-center p-6 gap-2 text-4xl whitespace-nowrap;
+  @apply cursor-default select-none flex items-end justify-center px-6 py-7 gap-2;
+
+  .logo {
+    @apply size-8 shrink-0;
+  }
+
+  .text {
+    @apply font-bold text-4xl whitespace-nowrap;
+  }
 }
 
 .tab-selector {
@@ -13,25 +21,25 @@
   @apply data-selected:bg-gray-300;
 }
 
-.main-content {
-  @apply size-full flex flex-col items-stretch overflow-hidden;
+.title-bar {
+  @apply flex items-center justify-end border-b gap-4;
 
-  .title-bar {
-    @apply flex items-center justify-end border-b gap-4;
+  .group {
+    @apply flex items-center;
+  }
 
-    .group {
-      @apply flex items-center;
-    }
+  .action {
+    @apply cursor-pointer transition-colors p-2;
+    @apply hover:bg-gray-200 text-gray-500;
 
-    .action {
-      @apply cursor-pointer transition-colors p-2;
-      @apply hover:bg-gray-200 text-gray-500;
-
-      &.destructive {
-        @apply hover:bg-red-200 text-red-400;
-      }
+    &.destructive {
+      @apply hover:bg-red-200 hover:text-red-600;
     }
   }
+}
+
+.main-content {
+  @apply size-full flex flex-col items-stretch overflow-hidden;
 
   .content {
     @apply p-8 lg:p-16 overflow-y-auto overflow-x-hidden;

@@ -1,5 +1,7 @@
 use std::{ fs, path::PathBuf };
 
+use serde::Deserialize;
+
 pub fn copy_folder(from: &PathBuf, to: &PathBuf) -> Result<(), String> {
   let contents = fs::read_dir(&from).map_err(|e| e.to_string())?;
 
@@ -20,4 +22,12 @@ pub fn copy_folder(from: &PathBuf, to: &PathBuf) -> Result<(), String> {
   }
 
   Ok(())
+}
+
+pub fn read_json<T>(path: &PathBuf) -> Result<T, String>
+  where for<'a> T: Deserialize<'a>
+{
+  let data = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+
+  serde_json::from_str(&data).map_err(|e| e.to_string())
 }

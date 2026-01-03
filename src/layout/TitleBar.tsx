@@ -17,11 +17,9 @@ export default function TitleBar() {
 
   useEffect(() => {
     appWindow.onResized(async () => {
-      try {
-        setIsMaximized(await appWindow.isMaximized());
-      } catch (_) {
-        setIsMaximized(false);
-      }
+      const isMaximized = await appWindow.isMaximized().catch((_) => false);
+
+      setIsMaximized(isMaximized);
     });
   }, [appWindow]);
 

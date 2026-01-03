@@ -1,14 +1,14 @@
+import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
-import { ArrowBigDownIcon, ArrowBigUpIcon, LinkIcon } from "lucide-react";
+import { FolderIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
-import { Else, If, Then, When } from "react-if";
-
-import Badge from "../components/Badge";
-import { useVersions } from "../hooks/useVersions";
+import { Else, If, Then } from "react-if";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
+import { useSettings } from "../hooks/useSettings";
+import { useVersions } from "../hooks/useVersions";
 
 import Button from "./Button";
 import Spinner from "./Spinner";
@@ -21,34 +21,76 @@ interface AssetProps {
 
 function Asset({ asset, version, children }: AssetProps) {
   const { installVersion, installing } = useVersions();
+  const { settings } = useSettings();
 
   const [isInstalling, setIsInstalling] = useState(false);
 
   return (
-    <Button
-      disabled={isInstalling || asset.id in installing}
-      className="py-0 px-2 flex-col text-xs text-gray-500"
-      onClick={() => {
-        if (!isInstalling && !(asset.id in installing)) {
-          setIsInstalling(true);
+    <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
+      <Button
+        disabled={isInstalling || asset.id in installing}
+        className="py-1 px-2 text-xs text-gray-500 rounded-none"
+        onClick={async () => {
+          if (!isInstalling && !(asset.id in installing)) {
+            setIsInstalling(true);
 
-          installVersion(
-            asset.id,
-            version,
-            asset.browser_download_url,
-            asset.name
-          ).finally(() => setIsInstalling(false));
-        }
-      }}
-    >
-      <If condition={isInstalling || asset.id in installing}>
-        <Then>
-          <Spinner className="size-6" />
-        </Then>
-        <Else>{children}</Else>
-      </If>
-      {filesize(asset.size)}
-    </Button>
+            try {
+              await installVersion(
+                settings.versionsFolder,
+                asset.id,
+                version,
+                asset.browser_download_url,
+                asset.name
+              );
+            } finally {
+              setIsInstalling(false);
+            }
+          }
+        }}
+      >
+        <If condition={isInstalling || asset.id in installing}>
+          <Then>
+            <Spinner className="size-5" />
+          </Then>
+          <Else>{children}</Else>
+        </If>
+        {filesize(asset.size)}
+      </Button>
+      <Button
+        disabled={isInstalling || asset.id in installing}
+        className="py-1 px-2 text-gray-500 rounded-none"
+        onClick={async () => {
+          const folder = await open({
+            directory: true,
+          });
+
+          if (!isInstalling && !(asset.id in installing) && folder) {
+            setIsInstalling(true);
+
+            try {
+              await installVersion(
+                folder,
+                asset.id,
+                version,
+                asset.browser_download_url,
+                asset.name
+              );
+            } finally {
+              setIsInstalling(false);
+            }
+          }
+        }}
+      >
+        <If condition={isInstalling || asset.id in installing}>
+          <Then>
+            <Spinner className="size-5" />
+          </Then>
+          <Else>
+            <FolderIcon size={20} />
+          </Else>
+        </If>
+      </Button>
+    </div>
   );
 }
 
@@ -77,18 +119,16 @@ export default function AvailableVersion({
   platform,
   arch,
 }: AvailableVersionProps) {
-  const regularTag = useMemo(() => `Godot_v${version.name}_`, [version]);
   const regularAssets = useMemo(() => {
     const assets: any[] = [];
+    const regex = new RegExp(
+      `Godot_v${version.name.replace("-", "[\\-_]")}_${platform}`
+    );
 
     for (const asset of version.assets) {
       const name = asset.name as string;
 
-      if (
-        name.endsWith(".zip") &&
-        name.startsWith(regularTag + platform) &&
-        name.includes(arch)
-      ) {
+      if (name.endsWith(".zip") && name.match(regex) && name.includes(arch)) {
         assets.push(asset);
       }
     }
@@ -96,18 +136,16 @@ export default function AvailableVersion({
     return assets;
   }, [version, platform, arch]);
 
-  const monoTag = useMemo(() => `Godot_v${version.name}_mono_`, [version]);
   const monoAssets = useMemo(() => {
     const assets: any[] = [];
+    const regex = new RegExp(
+      `Godot_v${version.name.replace("-", "[\\-_]")}_mono_${platform}`
+    );
 
     for (const asset of version.assets) {
       const name = asset.name as string;
 
-      if (
-        name.endsWith(".zip") &&
-        name.startsWith(monoTag + platform) &&
-        name.includes(arch)
-      ) {
+      if (name.endsWith(".zip") && name.match(regex) && name.includes(arch)) {
         assets.push(asset);
       }
     }
@@ -131,72 +169,6 @@ export default function AvailableVersion({
           />
           {version.name}
         </a>
-        {/* <div className="flex items-center gap-1">
-          <When condition={() => version.reactions["+1"]}>
-            {() => (
-              <Badge>
-                <ArrowBigUpIcon size={12} />
-                {version.reactions["+1"]}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions["-1"]}>
-            {() => (
-              <Badge>
-                <ArrowBigDownIcon size={12} />
-                {version.reactions["-1"]}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.confused}>
-            {() => (
-              <Badge>
-                🤔
-                {version.reactions.confused}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.laugh}>
-            {() => (
-              <Badge>
-                😂
-                {version.reactions.laugh}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.hooray}>
-            {() => (
-              <Badge>
-                🎉
-                {version.reactions.hooray}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.heart}>
-            {() => (
-              <Badge>
-                ❤️
-                {version.reactions.heart}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.rocket}>
-            {() => (
-              <Badge>
-                🚀
-                {version.reactions.rocket}
-              </Badge>
-            )}
-          </When>
-          <When condition={() => version.reactions.eyes}>
-            {() => (
-              <Badge>
-                👀
-                {version.reactions.eyes}
-              </Badge>
-            )}
-          </When>
-        </div> */}
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>
             Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
@@ -212,7 +184,7 @@ export default function AvailableVersion({
             asset={asset}
             version={version.name}
           >
-            <GodotLogo className="size-6 text-gray-500" />
+            <GodotLogo className="size-5 text-gray-500" />
           </Asset>
         ))}
         {monoAssets.map((asset) => (
@@ -221,7 +193,7 @@ export default function AvailableVersion({
             asset={asset}
             version={`${version.name}-mono`}
           >
-            <DotNetLogo className="size-6 text-gray-500" />
+            <DotNetLogo className="size-5 text-gray-500" />
           </Asset>
         ))}
       </div>

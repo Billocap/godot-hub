@@ -1,7 +1,12 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
-import { BookIcon, FolderIcon, FolderPlusIcon } from "lucide-react";
+import {
+  BookIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  RefreshCwIcon,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
 
@@ -96,6 +101,7 @@ export default function VersionPage() {
       const options = {
         capture: true,
       };
+
       const scrollHandler = (e: Event) => {
         const target = e.target as HTMLDivElement;
         const scrollHeight = target.scrollHeight - target.clientHeight - 500;
@@ -161,7 +167,7 @@ export default function VersionPage() {
     >
       <When condition={Object.entries(installing).length}>
         <div className="flex flex-col items-stretch gap-2">
-          <p className="text-2xl border-b">Install Queue</p>
+          <h2>Install Queue</h2>
           {Object.entries(installing).map(([id, v]) => (
             <DownloadingVersion
               key={id}
@@ -170,9 +176,13 @@ export default function VersionPage() {
           ))}
         </div>
       </When>
-      <When condition={settings.versionsFolder.length}>
+      <When
+        condition={
+          settings.versionsFolder.length != 0 && installedVersions.length != 0
+        }
+      >
         <div className="flex flex-col items-stretch gap-2">
-          <p className="text-2xl border-b">Installed Versions</p>
+          <h2>Installed Versions</h2>
           {installedVersions.map((version, id) => (
             <InstalledVersion
               key={version.key}
@@ -186,7 +196,18 @@ export default function VersionPage() {
         </div>
       </When>
       <div className="flex flex-col items-stretch gap-2">
-        <p className="text-2xl border-b">Available Versions</p>
+        <h2 className="flex items-center justify-between">
+          Available Versions
+          <Button
+            className="px-2 py-1 hover:bg-gray-200 text-xs"
+            onClick={() => {
+              fetchVersions();
+            }}
+          >
+            <RefreshCwIcon size={12} />
+            Refresh
+          </Button>
+        </h2>
         {versions.map((version) => (
           <When
             key={version.id}

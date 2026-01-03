@@ -3,6 +3,7 @@ interface Settings {
 }
 
 interface VersionData {
+  id: string;
   size: number;
   name: string;
   path: string;

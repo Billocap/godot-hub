@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import moment from "moment";
 import {
   createContext,
@@ -9,6 +8,7 @@ import {
 } from "react";
 
 import VersionController from "../controllers/VersionController";
+import VersionsHandler from "../handler/VersionsHandler";
 
 import { useSettings } from "./useSettings";
 
@@ -17,6 +17,7 @@ interface VersionsContext {
   installedVersions: VersionController[];
   updateInstalled(): void;
   installVersion(
+    at: string,
     id: number,
     version: string,
     url: string,
@@ -41,9 +42,9 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
   const [installing, setInstalling] = useState<Record<number, any>>({});
 
   const updateInstalled = async () => {
-    const installed = await invoke<VersionData[]>("list_versions");
+    const installed = await VersionsHandler.listInstalledVersions();
 
-    setInstalledVersions(installed.map(VersionController.from));
+    setInstalledVersions(installed);
   };
 
   useEffect(() => {
@@ -56,9 +57,7 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
     installing,
     installedVersions,
     updateInstalled,
-    async installVersion(id, version, url, assetName) {
-      const params = { id, version, url, assetName };
-
+    async installVersion(at, id, version, url, assetName) {
       try {
         setInstalling((prev) => {
           prev[id] = {
@@ -70,14 +69,24 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
           return { ...prev };
         });
 
-        await invoke("download_version", params);
-      } finally {
+        const installed = await VersionsHandler.installVersion(
+          at,
+          id,
+          version,
+          url,
+          assetName
+        );
+
+        setInstalledVersions(
+          Object.values(installed).map(VersionController.from)
+        );
+
         setInstalling((prev) => {
           delete prev[id];
 
           return { ...prev };
         });
-
+      } catch (_) {
         updateInstalled();
       }
     },

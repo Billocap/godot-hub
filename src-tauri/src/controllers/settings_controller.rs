@@ -35,6 +35,7 @@ impl SettingsController {
     self.config_path.push(CONFIG_NAME);
   }
 
+  /// Updates the path to the cache folder.
   pub fn update_cache_path(&mut self, cache_path: &PathBuf) {
     self.cache_folder = cache_path.clone();
   }
@@ -42,14 +43,33 @@ impl SettingsController {
   /// Reads the config file and updates the settings prop
   /// for this controller.
   /// Also returns the settings read from the file.
-  pub fn read_config(&mut self) -> Result<Settings, String> {
-    let config = fs
-      ::read_to_string(&self.config_path)
-      .map_err(|e| e.to_string())?;
+  pub fn read_config(
+    &mut self,
+    default_path: PathBuf
+  ) -> Result<Settings, String> {
+    let settings = match fs::read_to_string(&self.config_path) {
+      Ok(config) =>
+        serde_json::from_str(config.as_str()).map_err(|e| e.to_string())?,
+      Err(_) => {
+        let data = Settings {
+          versions_folder: default_path
+            .as_os_str()
+            .to_str()
+            .unwrap()
+            .to_owned(),
+        };
 
-    let settings: Settings = serde_json
-      ::from_str(config.as_str())
-      .map_err(|e| e.to_string())?;
+        let content = serde_json::to_string(&data).map_err(|e| e.to_string())?;
+
+        fs::write(&self.config_path, content).map_err(|e| e.to_string())?;
+
+        data
+      }
+    };
+
+    if !fs::exists(&settings.versions_folder).map_or(false, |b| b) {
+      fs::create_dir(&settings.versions_folder).map_err(|e| e.to_string())?;
+    }
 
     self.settings = settings.clone();
 
@@ -58,7 +78,7 @@ impl SettingsController {
 
   /// Updates the config file and the settings prop for this controller.
   pub fn write_config(&mut self, data: &Settings) -> io::Result<()> {
-    let content = serde_json::to_string(data)?;
+    let content = serde_json::to_string_pretty(data)?;
 
     self.settings = data.clone();
 

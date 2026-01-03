@@ -3,9 +3,11 @@
 }
 
 .badge {
-  @apply text-xs text-gray-500 bg-gray-200 rounded-sm inline-flex items-center gap-1 px-[2px];
+  @apply text-xs rounded-sm inline-flex items-center gap-1 px-0.5;
+  @apply text-gray-500 bg-gray-200;
 }
 
 .spinner {
-  @apply animate-spin border-2 rounded-full border-gray-300 border-b-black w-8 h-8 shrink-0;
+  @apply animate-spin border-2 rounded-full w-8 h-8 shrink-0;
+  @apply border-gray-300 border-b-black;
 }

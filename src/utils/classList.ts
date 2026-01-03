@@ -1,7 +1,9 @@
 /**
  * Creates a string to be used as a className property.
  * Functions, `undefined`, objects, `null` and `NaN` are ignored.
+ *
  * @param classes List of string classes.
+ *
  * @returns A valid css string.
  */
 export default function classList(...classes: any[]) {

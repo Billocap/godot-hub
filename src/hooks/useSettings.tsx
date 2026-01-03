@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import {
   createContext,
   ReactNode,
@@ -10,6 +9,7 @@ import { Else, If, Then } from "react-if";
 
 import Spinner from "../components/Spinner";
 import SettingsController from "../controllers/SettingsController";
+import SettingsHandler from "../handler/SettingsHandler";
 
 interface SettingsContext {
   settings: SettingsController;
@@ -30,8 +30,8 @@ export default function SettingsProvider({ children }: SettingsProviderProps) {
   const [settings, setSettings] = useState(new SettingsController());
 
   useEffect(() => {
-    invoke<Settings>("load_settings")
-      .then((source) => setSettings(SettingsController.from(source)))
+    SettingsHandler.loadSettings()
+      .then(setSettings)
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -43,9 +43,7 @@ export default function SettingsProvider({ children }: SettingsProviderProps) {
 
       setSettings(settings.clone());
 
-      return invoke("update_settings", {
-        settings: settings.serialize(),
-      });
+      return SettingsHandler.updateSettings(settings);
     },
   };
 

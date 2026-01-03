@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { filesize } from "filesize";
@@ -9,6 +8,7 @@ import { Else, If, Then, Unless } from "react-if";
 
 import GodotLogo from "../assets/godot-dark.svg?react";
 import VersionController from "../controllers/VersionController";
+import VersionsHandler from "../handler/VersionsHandler";
 
 import Badge from "./Badge";
 import Button from "./Button";
@@ -61,6 +61,9 @@ export default function InstalledVersion({
           </Badge>
         </span>
         <div className="text-xs text-gray-500 flex items-center gap-1">
+          {version.path}
+        </div>
+        <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>
             Created at: {moment(version.createdAt).format("HH:mm MM/DD/YYYY")}
           </span>
@@ -73,7 +76,7 @@ export default function InstalledVersion({
             disabled={isDeleting}
             className="flex-col py-0 px-2 text-xs"
             onClick={() => {
-              invoke("start_editor", { id });
+              VersionsHandler.runEditor(version.id);
             }}
           >
             <GodotLogo className="size-6 text-gray-500" />
@@ -86,7 +89,7 @@ export default function InstalledVersion({
           onClick={() => {
             setIsDeleting(true);
 
-            invoke("remove_version", { id })
+            VersionsHandler.uninstallVersion(version.id)
               .catch((_) => {
                 setIsDeleting(false);
               })
