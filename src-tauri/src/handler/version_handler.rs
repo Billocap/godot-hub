@@ -26,8 +26,6 @@ pub async fn download_version(
   at_path: String
 ) -> Result<HashMap<String, version_controller::VersionData>, String> {
   let notify = |m: &str| {
-    println!("{m}");
-
     let _r = app.emit("file_updated", (id, m.to_owned()));
   };
   let cache = settings_controller::STATE
@@ -46,11 +44,9 @@ pub async fn download_version(
   let result = controller.install_version(
     &cache,
     asset_name,
-    version.clone(),
-    at_path.clone(),
-    |m| {
-      let _r = app.emit("file_updated", (id, m.to_owned()));
-    }
+    &version,
+    &at_path,
+    notify
   )?;
 
   if

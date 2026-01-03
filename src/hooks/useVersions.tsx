@@ -69,24 +69,14 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
           return { ...prev };
         });
 
-        const installed = await VersionsHandler.installVersion(
-          at,
-          id,
-          version,
-          url,
-          assetName
-        );
-
-        setInstalledVersions(
-          Object.values(installed).map(VersionController.from)
-        );
-
+        await VersionsHandler.installVersion(at, id, version, url, assetName);
+      } finally {
         setInstalling((prev) => {
           delete prev[id];
 
           return { ...prev };
         });
-      } catch (_) {
+
         updateInstalled();
       }
     },

@@ -1,6 +1,6 @@
 use std::{ fs, io, path::PathBuf, sync::{ LazyLock, Mutex } };
 
-const CONFIG_NAME: &str = "godot-hub.config.json";
+const CONFIG_NAME: &str = "settings.json";
 
 pub static STATE: LazyLock<Mutex<SettingsController>> = LazyLock::new(|| {
   let controller = SettingsController {
@@ -32,6 +32,12 @@ impl SettingsController {
   pub fn update_config_path(&mut self, home_path: &PathBuf) {
     self.config_path = home_path.clone();
 
+    self.config_path.push(".godothub");
+
+    if !fs::exists(&self.config_path).map_or(false, |b| b) {
+      let _ = fs::create_dir(&self.config_path).map_or((), |b| b);
+    }
+
     self.config_path.push(CONFIG_NAME);
   }
 
@@ -59,7 +65,9 @@ impl SettingsController {
             .to_owned(),
         };
 
-        let content = serde_json::to_string(&data).map_err(|e| e.to_string())?;
+        let content = serde_json
+          ::to_string_pretty(&data)
+          .map_err(|e| e.to_string())?;
 
         fs::write(&self.config_path, content).map_err(|e| e.to_string())?;
 

@@ -14,7 +14,7 @@ use zip::ZipArchive;
 
 use crate::{ controllers::settings_controller, utils::file_utils };
 
-const DATA_FILE: &str = "godot-hub.versions.json";
+const DATA_FILE: &str = "versions.json";
 const VERSION_REGEX: &str = r"^v?\d+\.\d+(\.\d+)?-stable";
 const EXE_REGEX: &str = r"^[Gg]odot_v?\d+\.\d+(\.\d+)?-stable(_mono)?";
 const DATA_FORMAT: &str = "[year]-[month]-[day] [hour]:[minute]:[second]";
@@ -61,8 +61,14 @@ pub struct VersionController {
 }
 
 impl VersionController {
-  pub fn update_data_path(&mut self, app_data_path: &PathBuf) {
-    self.data_path = app_data_path.clone();
+  pub fn update_data_path(&mut self, home_path: &PathBuf) {
+    self.data_path = home_path.clone();
+
+    self.data_path.push(".godothub");
+
+    if !fs::exists(&self.data_path).map_or(false, |b| b) {
+      let _ = fs::create_dir(&self.data_path).map_or((), |b| b);
+    }
 
     self.data_path.push(DATA_FILE);
   }
@@ -74,17 +80,17 @@ impl VersionController {
       ::read_to_string(&self.data_path)
       .map_err(|e| e.to_string())?;
 
-    let data: VersionController = serde_json
+    let data: HashMap<String, VersionData> = serde_json
       ::from_str(&content.as_str())
       .map_err(|e| e.to_string())?;
 
-    self.versions = data.versions.clone();
+    self.versions = data.clone();
 
-    Ok(data.versions)
+    Ok(data)
   }
 
   pub fn save_data(&mut self) -> io::Result<()> {
-    let content = serde_json::to_string_pretty(self)?;
+    let content = serde_json::to_string_pretty(&self.versions)?;
 
     fs::write(&self.data_path, content)
   }
@@ -179,8 +185,8 @@ impl VersionController {
     &mut self,
     cache: &PathBuf,
     asset_name: String,
-    version: String,
-    at_path: String,
+    version: &String,
+    at_path: &String,
     notify: impl Fn(&str)
   ) -> Result<HashMap<String, VersionData>, String> {
     let target = at_path;
@@ -193,13 +199,13 @@ impl VersionController {
 
     let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
 
-    let temp_result_path: PathBuf = [cache, &version.clone().into()]
-      .iter()
-      .collect();
+    let temp_result_path: PathBuf = [cache, &version.into()].iter().collect();
 
-    let result_path: PathBuf = [&target, &version.clone().into()]
-      .iter()
-      .collect();
+    let result_path: PathBuf = [target, &version.into()].iter().collect();
+
+    if !fs::exists(&target).map_or(false, |b| b) {
+      fs::create_dir(&target).map_err(|e| e.to_string())?;
+    }
 
     notify("Extracting ZIP...");
 
