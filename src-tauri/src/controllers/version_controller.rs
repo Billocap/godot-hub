@@ -1,10 +1,4 @@
-use std::{
-  collections::HashMap,
-  fs::{ self, File },
-  io,
-  path::PathBuf,
-  sync::{ LazyLock, Mutex },
-};
+use std::{ collections::HashMap, fs::{ self, File }, io, path::PathBuf };
 
 use regex::{ Regex };
 use serde::{ Deserialize, Serialize };
@@ -12,20 +6,17 @@ use tauri::{ webview::cookie::time::{ OffsetDateTime, format_description } };
 use uuid::Uuid;
 use zip::ZipArchive;
 
-use crate::{ controllers::settings_controller, utils::file_utils };
+use crate::{
+  controllers::{ app_controller::{ AppController } },
+  utils::file_utils,
+};
 
 const DATA_FILE: &str = "versions.json";
 const VERSION_REGEX: &str = r"^v?\d+\.\d+(\.\d+)?-stable";
 const EXE_REGEX: &str = r"^[Gg]odot_v?\d+\.\d+(\.\d+)?-stable(_mono)?";
 const DATA_FORMAT: &str = "[year]-[month]-[day] [hour]:[minute]:[second]";
 
-pub static STATE: LazyLock<Mutex<VersionController>> = LazyLock::new(|| {
-  let controller = VersionController::default();
-
-  Mutex::new(controller)
-});
-
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct VersionData {
   pub id: String,
   pub name: String,
@@ -54,23 +45,22 @@ impl VersionData {
   }
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default)]
 pub struct VersionController {
   pub data_path: PathBuf,
   pub versions: HashMap<String, VersionData>,
 }
 
 impl VersionController {
-  pub fn update_data_path(&mut self, home_path: &PathBuf) {
-    self.data_path = home_path.clone();
+  pub fn new(new_app: &AppController) -> Self {
+    let mut data_path = new_app.data_folder.clone();
 
-    self.data_path.push(".godothub");
+    data_path.push(DATA_FILE);
 
-    if !fs::exists(&self.data_path).map_or(false, |b| b) {
-      let _ = fs::create_dir(&self.data_path).map_or((), |b| b);
+    Self {
+      data_path: data_path,
+      versions: HashMap::new(),
     }
-
-    self.data_path.push(DATA_FILE);
   }
 
   pub fn load_installed(
@@ -156,12 +146,9 @@ impl VersionController {
   }
 
   pub fn import_versions(
-    &mut self
+    &mut self,
+    path: &String
   ) -> Result<HashMap<String, VersionData>, String> {
-    let path = settings_controller::STATE
-      .lock()
-      .unwrap()
-      .settings.versions_folder.clone();
     let contents = fs::read_dir(path).map_err(|e| e.to_string())?;
     let version_regex = Regex::new(VERSION_REGEX).map_err(|e| e.to_string())?;
 

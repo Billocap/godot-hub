@@ -1,18 +1,8 @@
-use std::{ fs, io, path::PathBuf, sync::{ LazyLock, Mutex } };
+use std::{ fs, io, path::PathBuf };
+
+use crate::controllers::app_controller::AppController;
 
 const CONFIG_NAME: &str = "settings.json";
-
-pub static STATE: LazyLock<Mutex<SettingsController>> = LazyLock::new(|| {
-  let controller = SettingsController {
-    config_path: PathBuf::new(),
-    cache_folder: PathBuf::new(),
-    settings: Settings {
-      versions_folder: String::new(),
-    },
-  };
-
-  Mutex::new(controller)
-});
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct Settings {
@@ -22,28 +12,21 @@ pub struct Settings {
 #[derive(Clone)]
 pub struct SettingsController {
   pub settings: Settings,
-  pub cache_folder: PathBuf,
   pub config_path: PathBuf,
 }
 
 impl SettingsController {
-  /// Updates the path this settings controller tries to read
-  /// when loading a settings file.
-  pub fn update_config_path(&mut self, home_path: &PathBuf) {
-    self.config_path = home_path.clone();
+  pub fn new(new_app: &AppController) -> Self {
+    let mut config_path = new_app.data_folder.clone();
 
-    self.config_path.push(".godothub");
+    config_path.push(CONFIG_NAME);
 
-    if !fs::exists(&self.config_path).map_or(false, |b| b) {
-      let _ = fs::create_dir(&self.config_path).map_or((), |b| b);
+    Self {
+      settings: Settings {
+        versions_folder: String::new(),
+      },
+      config_path: config_path,
     }
-
-    self.config_path.push(CONFIG_NAME);
-  }
-
-  /// Updates the path to the cache folder.
-  pub fn update_cache_path(&mut self, cache_path: &PathBuf) {
-    self.cache_folder = cache_path.clone();
   }
 
   /// Reads the config file and updates the settings prop

@@ -1,6 +1,10 @@
 use tauri::Manager;
 
-use crate::controllers::{ settings_controller, version_controller };
+use crate::controllers::{
+  app_controller,
+  settings_controller::SettingsController,
+  version_controller::VersionController,
+};
 
 mod controllers;
 mod handler;
@@ -28,15 +32,16 @@ pub fn run() {
       ]
     )
     .setup(move |app| {
+      let mut custom_app = app_controller::STATE.lock().unwrap();
+
       let home_path = app.path().home_dir().unwrap();
-      let mut settings = settings_controller::STATE.lock().unwrap();
+      let cache_path = app.path().app_cache_dir().unwrap();
 
-      settings.update_config_path(&home_path);
-      settings.update_cache_path(&app.path().app_cache_dir().unwrap());
+      custom_app.update_data_path(&home_path);
+      custom_app.update_cache_path(&cache_path);
 
-      let mut versions = version_controller::STATE.lock().unwrap();
-
-      versions.update_data_path(&home_path);
+      custom_app.settings = Some(SettingsController::new(&custom_app));
+      custom_app.versions = Some(VersionController::new(&custom_app));
 
       Ok(())
     })
