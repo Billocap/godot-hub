@@ -11,3 +11,62 @@
   @apply animate-spin border-2 rounded-full w-8 h-8 shrink-0;
   @apply border-gray-300 border-b-black;
 }
+
+.tooltip {
+  @apply pointer-events-none transition-opacity text-center max-w-16 fixed text-xs bg-gray-900 text-gray-100 py-0.5 px-1 rounded;
+  @apply before:absolute before:bg-gray-900 before:rotate-45 before:size-2 before:-z-1;
+
+  &.top,
+  &.bottom {
+    &::before {
+      @apply left-1/2 -translate-x-1/2;
+    }
+
+    &.center {
+      @apply -translate-x-1/2;
+    }
+
+    &.end {
+      @apply -translate-x-full;
+    }
+  }
+
+  &.left,
+  &.right {
+    &::before {
+      @apply top-1/2 -translate-y-1/2;
+    }
+
+    &.center {
+      @apply -translate-y-1/2;
+    }
+
+    &.end {
+      @apply -translate-y-full;
+    }
+  }
+
+  &.top {
+    @apply -translate-y-full;
+  }
+
+  &.left {
+    @apply -translate-x-full;
+  }
+
+  &.top::before {
+    @apply bottom-0 translate-y-1/2;
+  }
+
+  &.bottom::before {
+    @apply top-0 -translate-y-1/2;
+  }
+
+  &.left::before {
+    @apply right-0 translate-x-1/2;
+  }
+
+  &.right::before {
+    @apply left-0 -translate-x-1/2;
+  }
+}

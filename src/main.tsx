@@ -1,8 +1,8 @@
 import ReactDOM from "react-dom/client";
 
 import App from "./components/App";
-import SettingsProvider from "./hooks/useSettings";
-import VersionsProvider from "./hooks/useVersions";
+import SettingsProvider from "./hooks/controllers/useSettings";
+import VersionsProvider from "./hooks/controllers/useVersions";
 
 import "./css/main.css";
 

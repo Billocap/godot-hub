@@ -1,17 +1,18 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
-import { FolderIcon, LinkIcon } from "lucide-react";
+import { FolderIcon, FolderSearchIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
-import { useSettings } from "../hooks/useSettings";
-import { useVersions } from "../hooks/useVersions";
+import { useSettings } from "../hooks/controllers/useSettings";
+import { useVersions } from "../hooks/controllers/useVersions";
 
 import Button from "./Button";
 import Spinner from "./Spinner";
+import Tooltip from "./Tooltip";
 
 interface AssetProps {
   asset: any;
@@ -27,84 +28,101 @@ function Asset({ asset, version, children }: AssetProps) {
 
   return (
     <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
-      <Button
-        disabled={isInstalling || asset.id in installing}
-        className="py-1 px-2 text-xs text-gray-500 rounded-none"
-        onClick={async () => {
-          if (!isInstalling && !(asset.id in installing)) {
-            setIsInstalling(true);
+      <span className="flex items-center gap-1 py-1 px-2 text-xs text-gray-500">
+        {children}
+        <span className="hidden lg:inline">{filesize(asset.size)}</span>
+      </span>
+      <Tooltip tooltip="Install">
+        <Button
+          disabled={isInstalling || asset.id in installing}
+          className="py-1 px-2 text-xs text-gray-500 rounded-none"
+          onClick={async () => {
+            if (!isInstalling && !(asset.id in installing)) {
+              setIsInstalling(true);
 
-            try {
-              await installVersion(
-                settings.versionsFolder,
-                asset.id,
-                version,
-                asset.browser_download_url,
-                asset.name
-              );
-            } finally {
-              setIsInstalling(false);
+              try {
+                await installVersion(
+                  settings.versionsFolder,
+                  asset.id,
+                  version,
+                  asset.browser_download_url,
+                  asset.name
+                );
+              } finally {
+                setIsInstalling(false);
+              }
             }
-          }
-        }}
-      >
-        <If condition={isInstalling || asset.id in installing}>
-          <Then>
-            <Spinner className="size-5" />
-          </Then>
-          <Else>{children}</Else>
-        </If>
-        {filesize(asset.size)}
-      </Button>
-      <Button
-        disabled={isInstalling || asset.id in installing}
-        className="py-1 px-2 text-gray-500 rounded-none"
-        onClick={async () => {
-          const folder = await open({
-            directory: true,
-          });
+          }}
+        >
+          <If condition={isInstalling || asset.id in installing}>
+            <Then>
+              <Spinner className="size-5" />
+            </Then>
+            <Else>
+              <FolderIcon size={18} />
+            </Else>
+          </If>
+        </Button>
+      </Tooltip>
+      <Tooltip tooltip="Install at">
+        <Button
+          disabled={isInstalling || asset.id in installing}
+          className="py-1 px-2 text-gray-500 rounded-none text-xs"
+          onClick={async () => {
+            const folder = await open({
+              directory: true,
+            });
 
-          if (!isInstalling && !(asset.id in installing) && folder) {
-            setIsInstalling(true);
+            if (!isInstalling && !(asset.id in installing) && folder) {
+              setIsInstalling(true);
 
-            try {
-              await installVersion(
-                folder,
-                asset.id,
-                version,
-                asset.browser_download_url,
-                asset.name
-              );
-            } finally {
-              setIsInstalling(false);
+              try {
+                await installVersion(
+                  folder,
+                  asset.id,
+                  version,
+                  asset.browser_download_url,
+                  asset.name
+                );
+              } finally {
+                setIsInstalling(false);
+              }
             }
-          }
-        }}
-      >
-        <If condition={isInstalling || asset.id in installing}>
-          <Then>
-            <Spinner className="size-5" />
-          </Then>
-          <Else>
-            <FolderIcon size={20} />
-          </Else>
-        </If>
-      </Button>
+          }}
+        >
+          <If condition={isInstalling || asset.id in installing}>
+            <Then>
+              <Spinner className="size-5" />
+            </Then>
+            <Else>
+              <FolderSearchIcon size={18} />
+            </Else>
+          </If>
+        </Button>
+      </Tooltip>
     </div>
   );
 }
 
 function AssetSkeleton() {
   return (
-    <Button className="py-0 px-2 flex-col text-xs text-gray-500">
-      <div className="size-6 rounded bg-gray-200" />
-      <div
-        className="h-3 rounded bg-gray-200"
-        style={{
-          width: `${20 + Math.random() * 20}px`,
-        }}
-      />
-    </Button>
+    <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
+      <span className="flex items-center gap-1 py-1 px-2">
+        <div className="size-5 rounded bg-gray-200" />
+        <div
+          className="h-3 rounded bg-gray-200 hidden lg:inline"
+          style={{
+            width: `${20 + Math.random() * 20}px`,
+          }}
+        />
+      </span>
+      <div className="py-1 px-2 text-xs text-gray-500 rounded-none">
+        <FolderIcon size={18} />
+      </div>
+      <div className="py-1 px-2 text-xs text-gray-500 rounded-none">
+        <FolderSearchIcon size={18} />
+      </div>
+    </div>
   );
 }
 

@@ -20,10 +20,11 @@ const DATA_FORMAT: &str = "[year]-[month]-[day] [hour]:[minute]:[second]";
 pub struct VersionData {
   pub id: String,
   pub name: String,
-  pub path: String,
   pub size: u64,
-  pub editor_path: String,
-  pub console_path: String,
+  pub path: PathBuf,
+  pub manifest_path: PathBuf,
+  pub editor_path: PathBuf,
+  pub console_path: PathBuf,
   pub updated_at: String,
   pub created_at: String,
 }
@@ -33,15 +34,8 @@ impl VersionData {
     let content = serde_json
       ::to_string_pretty(&self)
       .map_err(|e| e.to_string())?;
-    let manifest_path: PathBuf = [
-      &PathBuf::from(self.path.clone()),
-      &".godothub".into(),
-      &"manifest.json".into(),
-    ]
-      .iter()
-      .collect();
 
-    fs::write(manifest_path, content).map_err(|e| e.to_string())
+    fs::write(&self.manifest_path, content).map_err(|e| e.to_string())
   }
 }
 
@@ -122,11 +116,16 @@ impl VersionController {
           .map_err(|e| e.to_string())?
           .into();
         let (editor_path, console_path, size) = get_folder_data(&entry)?;
+        let manifest_path = entry
+          .clone()
+          .join(".godothub")
+          .join("manifest.json");
 
         let data = VersionData {
           id: Uuid::new_v4().to_string(),
           name: folder_name,
-          path: entry.as_os_str().to_str().unwrap().to_owned(),
+          path: entry.clone(),
+          manifest_path: manifest_path,
           editor_path: editor_path,
           console_path: console_path,
           size: size,
@@ -225,12 +224,14 @@ impl VersionController {
   }
 }
 
-fn get_folder_data(folder: &PathBuf) -> Result<(String, String, u64), String> {
+fn get_folder_data(
+  folder: &PathBuf
+) -> Result<(PathBuf, PathBuf, u64), String> {
   let exe_regex = Regex::new(EXE_REGEX).map_err(|e| e.to_string())?;
   let contents = fs::read_dir(folder).map_err(|e| e.to_string())?;
 
-  let mut editor_path = String::new();
-  let mut console_path = String::new();
+  let mut editor_path = PathBuf::new();
+  let mut console_path = PathBuf::new();
   let mut size: u64 = 0;
 
   for content in contents {
@@ -244,12 +245,10 @@ fn get_folder_data(folder: &PathBuf) -> Result<(String, String, u64), String> {
     size += file_size;
 
     if entry.is_file() && exe_regex.is_match(file_name) {
-      let path = entry.as_os_str().to_str().unwrap().to_owned();
-
       if file_name.contains("console") {
-        console_path = path;
+        console_path = entry.clone();
       } else {
-        editor_path = path;
+        editor_path = entry.clone();
       }
     }
 

@@ -1,4 +1,4 @@
-use std::{ collections::HashMap, process::Command };
+use std::{ collections::HashMap, path::PathBuf, process::Command };
 
 use tauri::{ AppHandle, Emitter, Manager };
 use tauri_plugin_notification::NotificationExt;
@@ -101,7 +101,7 @@ pub fn remove_version(
 }
 
 #[tauri::command]
-pub fn start_editor(id: String) -> Result<String, String> {
+pub fn start_editor(id: String) -> Result<PathBuf, String> {
   let editor = app_controller::STATE
     .lock()
     .map_err(|e| e.to_string())?
@@ -119,7 +119,7 @@ pub fn start_editor(id: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn start_console(id: String) -> Result<String, String> {
+pub fn start_console(id: String) -> Result<PathBuf, String> {
   let editor = app_controller::STATE
     .lock()
     .map_err(|e| e.to_string())?

@@ -7,9 +7,9 @@ import {
 } from "react";
 import { Else, If, Then } from "react-if";
 
-import Spinner from "../components/Spinner";
-import SettingsController from "../controllers/SettingsController";
-import SettingsHandler from "../handler/SettingsHandler";
+import Spinner from "../../components/Spinner";
+import SettingsController from "../../controllers/SettingsController";
+import SettingsHandler from "../../handler/SettingsHandler";
 
 interface SettingsContext {
   settings: SettingsController;

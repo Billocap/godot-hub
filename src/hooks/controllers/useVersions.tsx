@@ -7,8 +7,8 @@ import {
   useState,
 } from "react";
 
-import VersionController from "../controllers/VersionController";
-import VersionsHandler from "../handler/VersionsHandler";
+import VersionController from "../../controllers/VersionController";
+import VersionsHandler from "../../handler/VersionsHandler";
 
 import { useSettings } from "./useSettings";
 

@@ -14,8 +14,9 @@ import AvailableVersion from "../components/AvailabelVersion";
 import Button from "../components/Button";
 import DownloadingVersion from "../components/DownloadingVersion";
 import InstalledVersion from "../components/InstalledVersion";
-import { useSettings } from "../hooks/useSettings";
-import { useVersions } from "../hooks/useVersions";
+import { useSettings } from "../hooks/controllers/useSettings";
+import { useVersions } from "../hooks/controllers/useVersions";
+import useBodyScroll from "../hooks/useBodyScroll";
 import AppPage from "../layout/AppPage";
 import octokit from "../services/octokit";
 
@@ -96,28 +97,22 @@ export default function VersionPage() {
     fetchVersions();
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && pagination.canPaginate) {
-      const options = {
-        capture: true,
-      };
+  useBodyScroll(
+    {
+      canListen: !isLoading && pagination.canPaginate,
+      handler(e) {
+        if (!isLoading && pagination.canPaginate) {
+          const target = e.target as HTMLDivElement;
+          const scrollHeight = target.scrollHeight - target.clientHeight - 500;
 
-      const scrollHandler = (e: Event) => {
-        const target = e.target as HTMLDivElement;
-        const scrollHeight = target.scrollHeight - target.clientHeight - 500;
-
-        if (target.scrollTop >= scrollHeight) {
-          fetchVersions(pagination.page + 1);
+          if (target.scrollTop >= scrollHeight) {
+            fetchVersions(pagination.page + 1);
+          }
         }
-      };
-
-      document.body.addEventListener("scroll", scrollHandler, options);
-
-      return () => {
-        document.body.removeEventListener("scroll", scrollHandler, options);
-      };
-    }
-  }, [isLoading, pagination]);
+      },
+    },
+    [isLoading, pagination]
+  );
 
   return (
     <AppPage
