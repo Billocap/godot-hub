@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    godot_hub_lib::run()
+  godot_hub_lib::run()
 }
