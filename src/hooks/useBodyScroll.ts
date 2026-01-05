@@ -4,8 +4,6 @@ const options = {
   capture: true,
 };
 
-type EventHandler = (this: HTMLBodyElement, e: Event) => any;
-
 /**
  * Allow components to listen to a global scroll event.
  *
@@ -15,7 +13,7 @@ type EventHandler = (this: HTMLBodyElement, e: Event) => any;
  */
 export default function useBodyScroll(
   builder: {
-    handler: EventHandler;
+    handler(this: HTMLBodyElement, e: Event): any;
     canListen?: boolean;
   },
   deps: DependencyList = []

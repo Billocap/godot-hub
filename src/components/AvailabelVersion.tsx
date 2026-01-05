@@ -1,15 +1,22 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
-import { FolderIcon, FolderSearchIcon, LinkIcon } from "lucide-react";
+import {
+  ArrowBigDownIcon,
+  ArrowBigUpIcon,
+  FolderIcon,
+  FolderSearchIcon,
+  LinkIcon,
+} from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
-import { Else, If, Then } from "react-if";
+import { Else, If, Then, When } from "react-if";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
 import { useSettings } from "../hooks/controllers/useSettings";
 import { useVersions } from "../hooks/controllers/useVersions";
 
+import Badge from "./Badge";
 import Button from "./Button";
 import Spinner from "./Spinner";
 import Tooltip from "./Tooltip";
@@ -30,7 +37,7 @@ function Asset({ asset, version, children }: AssetProps) {
     <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
       <span className="flex items-center gap-1 py-1 px-2 text-xs text-gray-500">
         {children}
-        <span className="hidden lg:inline">{filesize(asset.size)}</span>
+        {filesize(asset.size)}
       </span>
       <Tooltip tooltip="Install">
         <Button
@@ -56,7 +63,7 @@ function Asset({ asset, version, children }: AssetProps) {
         >
           <If condition={isInstalling || asset.id in installing}>
             <Then>
-              <Spinner className="size-5" />
+              <Spinner className="size-4.5" />
             </Then>
             <Else>
               <FolderIcon size={18} />
@@ -92,7 +99,7 @@ function Asset({ asset, version, children }: AssetProps) {
         >
           <If condition={isInstalling || asset.id in installing}>
             <Then>
-              <Spinner className="size-5" />
+              <Spinner className="size-4.5" />
             </Then>
             <Else>
               <FolderSearchIcon size={18} />

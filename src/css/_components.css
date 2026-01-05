@@ -13,8 +13,9 @@
 }
 
 .tooltip {
-  @apply pointer-events-none transition-opacity text-center max-w-16 fixed text-xs bg-gray-900 text-gray-100 py-0.5 px-1 rounded;
-  @apply before:absolute before:bg-gray-900 before:rotate-45 before:size-2 before:-z-1;
+  @apply pointer-events-none transition-opacity text-center max-w-16 fixed text-xs py-0.5 px-1 rounded;
+  @apply before:absolute before:rotate-45 before:size-2 before:-z-1;
+  @apply bg-gray-900 before:bg-gray-900 text-gray-100;
 
   &.top,
   &.bottom {
@@ -55,18 +56,18 @@
   }
 
   &.top::before {
-    @apply bottom-0 translate-y-1/2;
+    @apply bottom-0 translate-y-1/2 rounded-br-xs;
   }
 
   &.bottom::before {
-    @apply top-0 -translate-y-1/2;
+    @apply top-0 -translate-y-1/2 rounded-tl-xs;
   }
 
   &.left::before {
-    @apply right-0 translate-x-1/2;
+    @apply right-0 translate-x-1/2 rounded-tr-xs;
   }
 
   &.right::before {
-    @apply left-0 -translate-x-1/2;
+    @apply left-0 -translate-x-1/2 rounded-bl-xs;
   }
 }
