@@ -1,17 +1,17 @@
-use tauri::Manager;
+use std::sync::Mutex;
 
-use crate::controllers::{ app_controller, settings_controller };
+use tauri::{ Manager, State };
+
+use crate::controllers::{ app_controller::AppController, settings_controller };
 
 #[tauri::command]
 pub fn load_settings(
-  app: tauri::AppHandle
+  app: tauri::AppHandle,
+  state: State<'_, Mutex<AppController>>
 ) -> Result<settings_controller::Settings, String> {
-  let mut custom_app = app_controller::STATE.lock().map_err(|e| e.to_string())?;
+  let mut custom_app = state.lock().map_err(|e| e.to_string())?;
 
-  match custom_app.versions.as_mut().unwrap().load_installed() {
-    Ok(_) => {}
-    Err(_) => {}
-  }
+  let _ = custom_app.versions.load_installed().map_or((), |_| ());
 
   let mut default_path = app
     .path()
@@ -20,14 +20,15 @@ pub fn load_settings(
 
   default_path.push("Godot");
 
-  let settings = custom_app.settings.as_mut().unwrap();
-
-  settings.read_config(default_path)
+  custom_app.settings.read_config(default_path)
 }
 
 #[tauri::command]
-pub fn update_settings(settings: settings_controller::Settings) {
-  let mut custom_app = app_controller::STATE.lock().unwrap();
+pub fn update_settings(
+  state: State<'_, Mutex<AppController>>,
+  settings: settings_controller::Settings
+) {
+  let mut custom_app = state.lock().unwrap();
 
-  let _ = custom_app.settings.as_mut().unwrap().write_config(&settings);
+  let _ = custom_app.settings.write_config(&settings);
 }

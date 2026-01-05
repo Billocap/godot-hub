@@ -1,4 +1,4 @@
-use std::{ fs, path::PathBuf, sync::{ LazyLock, Mutex } };
+use std::{ fs, path::PathBuf };
 
 use crate::controllers::{
   settings_controller::SettingsController,
@@ -7,22 +7,12 @@ use crate::controllers::{
 
 const DATA_FOLDER: &str = ".godothub";
 
-pub static STATE: LazyLock<Mutex<AppController>> = LazyLock::new(|| {
-  let controller = AppController {
-    settings: None,
-    versions: None,
-    cache_folder: PathBuf::new(),
-    data_folder: PathBuf::new(),
-  };
-
-  Mutex::new(controller)
-});
-
+#[derive(Default)]
 pub struct AppController {
   pub cache_folder: PathBuf,
   pub data_folder: PathBuf,
-  pub versions: Option<VersionController>,
-  pub settings: Option<SettingsController>,
+  pub versions: VersionController,
+  pub settings: SettingsController,
 }
 
 impl AppController {
@@ -33,9 +23,7 @@ impl AppController {
 
     self.data_folder.push(DATA_FOLDER);
 
-    if !fs::exists(&self.data_folder).map_or(false, |b| b) {
-      let _ = fs::create_dir(&self.data_folder).map_or((), |b| b);
-    }
+    let _ = fs::create_dir(&self.data_folder).map_or((), |b| b);
   }
 
   /// Updates the path to the cache folder.

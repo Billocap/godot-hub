@@ -1,15 +1,17 @@
 use std::{ fs, io, path::PathBuf };
 
+use serde::{ Deserialize, Serialize };
+
 use crate::controllers::app_controller::AppController;
 
 const CONFIG_NAME: &str = "settings.json";
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Default, Clone)]
 pub struct Settings {
   pub versions_folder: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct SettingsController {
   pub settings: Settings,
   pub config_path: PathBuf,
@@ -58,9 +60,7 @@ impl SettingsController {
       }
     };
 
-    if !fs::exists(&settings.versions_folder).map_or(false, |b| b) {
-      fs::create_dir(&settings.versions_folder).map_err(|e| e.to_string())?;
-    }
+    let _ = fs::create_dir(&settings.versions_folder).map_or((), |_| {});
 
     self.settings = settings.clone();
 

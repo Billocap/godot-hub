@@ -1,7 +1,9 @@
+use std::sync::Mutex;
+
 use tauri::Manager;
 
 use crate::controllers::{
-  app_controller,
+  app_controller::AppController,
   settings_controller::SettingsController,
   version_controller::VersionController,
 };
@@ -32,16 +34,18 @@ pub fn run() {
       ]
     )
     .setup(move |app| {
-      let mut custom_app = app_controller::STATE.lock().unwrap();
+      let mut state = AppController::default();
 
       let home_path = app.path().home_dir().unwrap();
       let cache_path = app.path().app_cache_dir().unwrap();
 
-      custom_app.update_data_path(&home_path);
-      custom_app.update_cache_path(&cache_path);
+      state.update_data_path(&home_path);
+      state.update_cache_path(&cache_path);
 
-      custom_app.settings = Some(SettingsController::new(&custom_app));
-      custom_app.versions = Some(VersionController::new(&custom_app));
+      state.settings = SettingsController::new(&state);
+      state.versions = VersionController::new(&state);
+
+      app.manage(Mutex::new(state));
 
       Ok(())
     })

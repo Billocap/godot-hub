@@ -1,28 +1,25 @@
-use std::{ collections::HashMap, path::PathBuf, process::Command };
+use std::{ collections::HashMap, path::PathBuf, process::Command, sync::Mutex };
 
-use tauri::{ AppHandle, Emitter, Manager };
+use tauri::{ AppHandle, Emitter, Manager, State };
 use tauri_plugin_notification::NotificationExt;
 
-use crate::controllers::{ app_controller, version_controller };
+use crate::controllers::{ app_controller::AppController, version_controller };
 
 #[tauri::command]
-pub fn list_versions() -> Result<
-  HashMap<String, version_controller::VersionData>,
-  String
-> {
-  let mut custom_app = app_controller::STATE.lock().map_err(|e| e.to_string())?;
+pub fn list_versions(
+  state: State<'_, Mutex<AppController>>
+) -> Result<HashMap<String, version_controller::VersionData>, String> {
+  let mut custom_app = state.lock().map_err(|e| e.to_string())?;
 
-  let path = custom_app.settings
-    .as_ref()
-    .unwrap()
-    .settings.versions_folder.clone();
+  let path = custom_app.settings.settings.versions_folder.clone();
 
-  custom_app.versions.as_mut().unwrap().import_versions(&path)
+  custom_app.versions.import_versions(&path)
 }
 
 #[tauri::command]
 pub async fn download_version(
   app: AppHandle,
+  state: State<'_, Mutex<AppController>>,
   id: usize,
   url: String,
   asset_name: String,
@@ -32,7 +29,7 @@ pub async fn download_version(
   let notify = |m: &str| {
     let _r = app.emit("file_updated", (id, m.to_owned()));
   };
-  let cache = app_controller::STATE
+  let cache = state
     .lock()
     .map_err(|e| e.to_string())?
     .cache_folder.clone();
@@ -41,11 +38,9 @@ pub async fn download_version(
 
   version_controller::download_version(&url, &cache, &asset_name).await?;
 
-  let mut custom_app = app_controller::STATE.lock().map_err(|e| e.to_string())?;
+  let mut custom_app = state.lock().map_err(|e| e.to_string())?;
 
-  let controller = custom_app.versions.as_mut().unwrap();
-
-  let result = controller.install_version(
+  let result = custom_app.versions.install_version(
     &cache,
     asset_name,
     &version,
@@ -58,7 +53,7 @@ pub async fn download_version(
       .get_webview_window("main")
       .unwrap()
       .is_minimized()
-      .map_err(|e| e.to_string())?
+      .map_or(false, |b| b)
   {
     app
       .notification()
@@ -75,18 +70,19 @@ pub async fn download_version(
 #[tauri::command]
 pub fn remove_version(
   app: AppHandle,
+  state: State<'_, Mutex<AppController>>,
   id: String
 ) -> Result<version_controller::VersionData, String> {
-  let mut custom_app = app_controller::STATE.lock().map_err(|e| e.to_string())?;
+  let mut custom_app = state.lock().map_err(|e| e.to_string())?;
 
-  let removed = custom_app.versions.as_mut().unwrap().remove_version(id)?;
+  let removed = custom_app.versions.remove_version(id)?;
 
   if
     app
       .get_webview_window("main")
       .unwrap()
       .is_minimized()
-      .map_err(|e| e.to_string())?
+      .map_or(false, |b| b)
   {
     app
       .notification()
@@ -101,13 +97,14 @@ pub fn remove_version(
 }
 
 #[tauri::command]
-pub fn start_editor(id: String) -> Result<PathBuf, String> {
-  let editor = app_controller::STATE
+pub fn start_editor(
+  state: State<'_, Mutex<AppController>>,
+  id: String
+) -> Result<PathBuf, String> {
+  let editor = state
     .lock()
     .map_err(|e| e.to_string())?
-    .versions.as_ref()
-    .unwrap()
-    .versions.get(&id)
+    .versions.versions.get(&id)
     .unwrap()
     .editor_path.clone();
 
@@ -119,13 +116,14 @@ pub fn start_editor(id: String) -> Result<PathBuf, String> {
 }
 
 #[tauri::command]
-pub fn start_console(id: String) -> Result<PathBuf, String> {
-  let editor = app_controller::STATE
+pub fn start_console(
+  state: State<'_, Mutex<AppController>>,
+  id: String
+) -> Result<PathBuf, String> {
+  let editor = state
     .lock()
     .map_err(|e| e.to_string())?
-    .versions.as_ref()
-    .unwrap()
-    .versions.get(&id)
+    .versions.versions.get(&id)
     .unwrap()
     .console_path.clone();
 

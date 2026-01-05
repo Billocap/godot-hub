@@ -73,21 +73,16 @@ impl VersionController {
     Ok(data)
   }
 
-  pub fn save_data(&mut self) -> io::Result<()> {
+  pub fn save_data(&self) -> io::Result<()> {
     let content = serde_json::to_string_pretty(&self.versions)?;
 
     fs::write(&self.data_path, content)
   }
 
-  pub fn import_version(
-    &mut self,
-    entry: &PathBuf
-  ) -> Result<VersionData, String> {
+  pub fn import_version(&self, entry: &PathBuf) -> Result<VersionData, String> {
     let hub_folder: PathBuf = [entry, &".godothub".into()].iter().collect();
 
-    if !fs::exists(&hub_folder).map_or(false, |b| b) {
-      fs::create_dir(&hub_folder).map_err(|e| e.to_string())?;
-    }
+    let _ = fs::create_dir(&hub_folder).map_or((), |e| e);
 
     let date_format = format_description
       ::parse(DATA_FORMAT)
@@ -189,9 +184,7 @@ impl VersionController {
 
     let result_path: PathBuf = [target, &version.into()].iter().collect();
 
-    if !fs::exists(&target).map_or(false, |b| b) {
-      fs::create_dir(&target).map_err(|e| e.to_string())?;
-    }
+    let _ = fs::create_dir(&target).map_or((), |e| e);
 
     notify("Extracting ZIP...");
 
