@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
-import classList from "../utils/classList";
+import classList from "@/utils/classList";
 
 type ButtonProps = DetailedHTMLProps<
   ButtonHTMLAttributes<HTMLButtonElement>,

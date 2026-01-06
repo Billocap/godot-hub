@@ -8,8 +8,8 @@ import {
 import { createPortal } from "react-dom";
 import { When } from "react-if";
 
-import useBodyScroll from "../hooks/useBodyScroll";
-import classList from "../utils/classList";
+import useBodyScroll from "@/hooks/useBodyScroll";
+import classList from "@/utils/classList";
 
 type DivProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,

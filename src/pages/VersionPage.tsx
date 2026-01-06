@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
 
-import AvailableVersion from "../components/AvailabelVersion";
+import AvailableVersion from "@/components/AvailabelVersion";
 import Button from "../components/Button";
 import DownloadingVersion from "../components/DownloadingVersion";
 import InstalledVersion from "../components/InstalledVersion";

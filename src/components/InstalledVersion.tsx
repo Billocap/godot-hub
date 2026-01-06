@@ -6,9 +6,9 @@ import moment from "moment";
 import { useState } from "react";
 import { Else, If, Then, Unless } from "react-if";
 
-import GodotLogo from "../assets/godot-dark.svg?react";
-import VersionController from "../controllers/VersionController";
-import VersionsHandler from "../handler/VersionsHandler";
+import GodotLogo from "@/assets/godot-dark.svg?react";
+import VersionController from "@/controllers/VersionController";
+import VersionsHandler from "@/handler/VersionsHandler";
 
 import Badge from "./Badge";
 import Button from "./Button";
@@ -30,6 +30,7 @@ export default function InstalledVersion({
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <span
+          data-cy-version-name
           className="cursor-pointer flex items-center gap-1 w-fit"
           onClick={() => openPath(version.path)}
         >
@@ -58,7 +59,10 @@ export default function InstalledVersion({
             <CopyIcon size={12} /> Console Path
           </Badge>
         </span>
-        <div className="text-xs text-gray-500 flex items-center gap-1">
+        <div
+          data-cy-location
+          className="text-xs text-gray-500 flex items-center gap-1"
+        >
           {version.path}
         </div>
         <div className="text-xs text-gray-500 flex items-center gap-1">
