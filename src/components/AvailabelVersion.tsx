@@ -1,22 +1,15 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
-import {
-  ArrowBigDownIcon,
-  ArrowBigUpIcon,
-  FolderIcon,
-  FolderSearchIcon,
-  LinkIcon,
-} from "lucide-react";
+import { FolderIcon, FolderSearchIcon, LinkIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
-import { Else, If, Then, When } from "react-if";
+import { Else, If, Then } from "react-if";
 
 import DotNetLogo from "../assets/dotnet-tile.svg?react";
 import GodotLogo from "../assets/godot-dark.svg?react";
 import { useSettings } from "../hooks/controllers/useSettings";
 import { useVersions } from "../hooks/controllers/useVersions";
 
-import Badge from "./Badge";
 import Button from "./Button";
 import Spinner from "./Spinner";
 import Tooltip from "./Tooltip";

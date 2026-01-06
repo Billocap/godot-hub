@@ -15,13 +15,11 @@ import Button from "./Button";
 import Spinner from "./Spinner";
 
 interface InstalledVersionProps {
-  id: number;
   version: VersionController;
   onUpdate(): void;
 }
 
 export default function InstalledVersion({
-  id,
   version,
   onUpdate,
 }: InstalledVersionProps) {

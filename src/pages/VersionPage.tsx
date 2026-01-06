@@ -178,10 +178,9 @@ export default function VersionPage() {
       >
         <div className="flex flex-col items-stretch gap-2">
           <h2>Installed Versions</h2>
-          {installedVersions.map((version, id) => (
+          {installedVersions.map((version) => (
             <InstalledVersion
               key={version.key}
-              id={id}
               version={version}
               onUpdate={() => {
                 updateInstalled();

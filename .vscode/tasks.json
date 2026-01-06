@@ -9,7 +9,24 @@
       "command": "build",
       "options": {
         "cwd": "${workspaceRoot}/src-tauri"
-      }
+      },
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "."
+          }
+        }
+      ]
     },
     {
       "label": "ui:dev",
@@ -20,7 +37,24 @@
       "isBackground": true,
       // change this to your `beforeDevCommand`:
       "command": "pnpm",
-      "args": ["dev"]
+      "args": ["dev"],
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "."
+          }
+        }
+      ]
     },
     {
       "label": "dev",
