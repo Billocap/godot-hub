@@ -9,7 +9,15 @@ export default function ModeSwitch() {
   };
 
   useEffect(() => {
-    toggleMode(localStorage.getItem("theme") ?? "dark");
+    const theme = localStorage.getItem("theme");
+
+    if (theme === null) {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      toggleMode(isDark ? "dark" : "light");
+    } else {
+      toggleMode(theme);
+    }
   }, []);
 
   return (
