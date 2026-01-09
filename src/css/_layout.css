@@ -1,5 +1,5 @@
 .side-bar {
-  @apply flex flex-col items-stretch border-r;
+  @apply w-fit flex flex-col items-stretch border-r;
   @apply bg-slate-200 dark:bg-slate-800;
 
   .tab-selector {
@@ -8,7 +8,7 @@
     @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
 
     .text {
-      @apply transition-all max-w-full duration-300 overflow-hidden ml-2;
+      @apply transition-all max-w-fit duration-300 overflow-hidden ml-2;
 
       &[data-collapsed] {
         @apply max-w-0 ml-0;
@@ -33,7 +33,7 @@
   }
 
   .text {
-    @apply transition-all max-w-full font-bold text-3xl whitespace-nowrap overflow-hidden gap-1 ml-1;
+    @apply transition-all max-w-fit font-bold text-3xl whitespace-nowrap overflow-hidden gap-1 ml-1;
   }
 }
 
@@ -48,8 +48,12 @@
     @apply cursor-pointer transition-colors p-2;
     @apply text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800;
 
-    &.destructive {
-      @apply hover:bg-red-500/25 hover:text-red-500;
+    &.destructive:hover {
+      @apply bg-red-500/25;
+
+      .lucide {
+        @apply text-red-500!;
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
+  useEffect,
   useState,
 } from "react";
 
@@ -22,6 +23,16 @@ interface SideBarProviderProps {
 
 export default function SideBarProvider({ children }: SideBarProviderProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const collapsed = localStorage.getItem("side-bar-collapsed");
+
+    if (collapsed) setCollapsed(collapsed == "true");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("side-bar-collapsed", String(collapsed));
+  }, [collapsed]);
 
   const context: SideBarContext = {
     collapsed,

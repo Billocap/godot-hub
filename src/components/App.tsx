@@ -1,5 +1,5 @@
 import { TabGroup, TabPanel, TabPanels } from "@headlessui/react";
-import { BookIcon, CodeIcon } from "lucide-react";
+import { BookIcon } from "lucide-react";
 
 import SideBarProvider from "@/hooks/useSideBar";
 import TitleBar from "@/layout/TitleBar";
