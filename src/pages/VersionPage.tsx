@@ -121,24 +121,20 @@ export default function VersionPage() {
       headerChildren={() => (
         <div className="flex items-center gap-4 justify-between">
           <span
-            className="flex items-center gap-1 w-full whitespace-nowrap overflow-hidden cursor-pointer"
+            className="text-slate-500 flex items-center gap-1 w-full whitespace-nowrap overflow-hidden cursor-pointer"
             onClick={() => {
               openPath(settings.versionsFolder);
             }}
           >
             <span className="hidden lg:inline">Current Folder:</span>
             <span className="inline lg:hidden">
-              <FolderIcon
-                size={16}
-                className="text-gray-400"
-              />
+              <FolderIcon size={16} />
             </span>
-            <span className="text-gray-500 overflow-hidden text-ellipsis">
+            <span className="overflow-hidden text-ellipsis">
               {settings.versionsFolder}
             </span>
           </span>
           <Button
-            className="bg-gray-900 text-gray-100 hover:bg-gray-700"
             onClick={async () => {
               const folder = await open({
                 directory: true,
@@ -193,7 +189,8 @@ export default function VersionPage() {
         <h2 className="flex items-center justify-between">
           Available Versions
           <Button
-            className="px-2 py-1 hover:bg-gray-200 text-xs"
+            variant="secondary"
+            size="tiny"
             onClick={() => {
               fetchVersions();
             }}

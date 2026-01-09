@@ -3,12 +3,15 @@ import {
   BookOpenIcon,
   CopyIcon,
   GlobeIcon,
+  MenuIcon,
   SquareIcon,
   Tally1Icon,
   XIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
+
+import ModeSwitch from "@/components/ModeSwitch";
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -28,6 +31,10 @@ export default function TitleBar() {
       data-tauri-drag-region
       className="title-bar"
     >
+      <div className="group pl-2">
+        <ModeSwitch />
+      </div>
+      <div className="w-full" />
       <div className="group">
         <a
           href="https://docs.godotengine.org"

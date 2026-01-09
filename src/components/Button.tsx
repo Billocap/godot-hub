@@ -7,11 +7,21 @@ type ButtonProps = DetailedHTMLProps<
   HTMLButtonElement
 >;
 
-export default function Button({ className, ...props }: ButtonProps) {
+interface ExtraProps {
+  variant?: "primary" | "secondary" | "destructive";
+  size?: "regular" | "small" | "tiny";
+}
+
+export default function Button({
+  className,
+  variant = "primary",
+  size = "regular",
+  ...props
+}: ButtonProps & ExtraProps) {
   return (
     <button
       type="button"
-      className={classList("button", className)}
+      className={classList("button", size, variant, className)}
       {...props}
     />
   );

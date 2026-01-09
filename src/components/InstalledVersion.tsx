@@ -26,9 +26,9 @@ export default function InstalledVersion({
   const [isDeleting, setIsDeleting] = useState(false);
 
   return (
-    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors border border-transparent hover:bg-gray-200/25 hover:border-gray-200 rounded-lg">
+    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors rounded-lg gap-2">
       {/* Version Info */}
-      <div className="flex flex-col items-stretch gap-1">
+      <div className="flex flex-col items-stretch gap-1 overflow-hidden">
         <span
           data-cy-version-name
           className="cursor-pointer flex items-center gap-1 w-fit"
@@ -36,36 +36,38 @@ export default function InstalledVersion({
         >
           <FolderIcon
             size={12}
-            className="text-gray-500"
+            className="text-slate-500"
           />
           {version.name}
           <Badge>{filesize(version.size)}</Badge>
         </span>
         <span className="text-xs flex items-center gap-1">
-          <Badge
-            className="cursor-pointer"
+          <Button
+            size="tiny"
+            variant="secondary"
             onClick={() => {
               writeText(version.editorPath);
             }}
           >
             <CopyIcon size={12} /> Editor Path
-          </Badge>
-          <Badge
-            className="cursor-pointer"
+          </Button>
+          <Button
+            size="tiny"
+            variant="secondary"
             onClick={() => {
               writeText(version.consolePath);
             }}
           >
             <CopyIcon size={12} /> Console Path
-          </Badge>
+          </Button>
         </span>
         <div
           data-cy-location
-          className="text-xs text-gray-500 flex items-center gap-1"
+          className="text-xs text-slate-500 flex items-center gap-1 text-ellipsis whitespace-nowrap"
         >
           {version.path}
         </div>
-        <div className="text-xs text-gray-500 flex items-center gap-1">
+        <div className="text-xs text-slate-500 flex items-center gap-1">
           <span>
             Created at: {moment(version.createdAt).format("HH:mm MM/DD/YYYY")}
           </span>
@@ -75,19 +77,19 @@ export default function InstalledVersion({
       <div className="flex items-center gap-2">
         <Unless condition={isDeleting}>
           <Button
+            variant="secondary"
             disabled={isDeleting}
-            className="flex-col py-0 px-2 text-xs"
             onClick={() => {
               VersionsHandler.runEditor(version.id);
             }}
           >
-            <GodotLogo className="size-6 text-gray-500" />
+            <GodotLogo className="icon size-4" />
             Open Editor
           </Button>
         </Unless>
         <Button
+          variant="destructive"
           disabled={isDeleting}
-          className="flex-col py-0 px-2 text-xs text-red-500"
           onClick={() => {
             setIsDeleting(true);
 
@@ -102,10 +104,10 @@ export default function InstalledVersion({
         >
           <If condition={isDeleting}>
             <Then>
-              <Spinner className="size-6" />
+              <Spinner className="size-4" />
             </Then>
             <Else>
-              <Trash2Icon size={24} />
+              <Trash2Icon size={16} />
             </Else>
           </If>
           Delete Folder

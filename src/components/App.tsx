@@ -13,7 +13,7 @@ export default function App() {
         <Tab className="tab-selector">
           <BookIcon
             size={14}
-            className="text-gray-500"
+            className="text-slate-500"
           />
           Version Manager
         </Tab>

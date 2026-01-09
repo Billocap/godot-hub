@@ -24,12 +24,12 @@ export default function DownloadingVersion({
       <span className="flex items-center gap-1">
         <FolderIcon
           size={12}
-          className="text-gray-500"
+          className="text-slate-500"
         />
         {version.name}
       </span>
       <span className="text-xs">{downloadState}</span>
-      <div className="text-xs text-gray-500 flex items-center gap-1">
+      <div className="text-xs text-slate-500 flex items-center gap-1">
         Started at: {version.createdAt}
       </div>
     </div>

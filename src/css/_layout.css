@@ -1,7 +1,6 @@
 .side-bar {
   @apply flex flex-col items-stretch border-r;
-  @apply bg-gray-200;
-  /* @apply dark:border-r-gray-900 dark:bg-gray-800; */
+  @apply bg-slate-200 dark:bg-slate-800;
 }
 
 .app-header {
@@ -18,7 +17,7 @@
 
 .tab-selector {
   @apply whitespace-nowrap cursor-pointer transition-colors px-4 py-2 outline-0 flex items-center gap-1;
-  @apply data-selected:bg-gray-300;
+  @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
 }
 
 .title-bar {
@@ -30,7 +29,7 @@
 
   .action {
     @apply cursor-pointer transition-colors p-2;
-    @apply hover:bg-gray-200 text-gray-500;
+    @apply text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800;
 
     &.destructive {
       @apply hover:bg-red-500/25 hover:text-red-500;
@@ -43,5 +42,20 @@
 
   .content {
     @apply p-8 lg:p-16 overflow-y-auto overflow-x-hidden;
+  }
+}
+
+.mode-switch {
+  @apply relative flex items-center p-0.5 gap-0.5 cursor-pointer rounded-xs transition-all;
+  @apply text-slate-500 bg-slate-300 dark:bg-slate-700;
+
+  .swatch {
+    @apply absolute size-4 rounded-xs p-0.5 bg-slate-100 transition-all;
+
+    @apply dark:left-5 dark:bg-slate-900;
+  }
+
+  .icon {
+    @apply p-0.5 z-10;
   }
 }

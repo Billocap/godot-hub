@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
 import { fn } from "storybook/test";
 
 import Button from "@/components/Button";
@@ -14,6 +13,8 @@ const meta: Meta<typeof Button> = {
   tags: ["autodocs"],
   args: {
     onClick: fn(),
+    children: "Button",
+    size: "regular",
   },
 };
 
@@ -23,6 +24,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
-    children: "Primary",
+    variant: "primary",
+  },
+};
+
+export const Secondary: Story = {
+  args: {
+    variant: "secondary",
+  },
+};
+
+export const Destructive: Story = {
+  args: {
+    variant: "destructive",
   },
 };

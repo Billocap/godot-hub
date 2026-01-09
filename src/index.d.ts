@@ -1,3 +1,13 @@
+type Colors =
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "cyan"
+  | "blue"
+  | "purple"
+  | "pink";
+
 interface Settings {
   versions_folder: string;
 }

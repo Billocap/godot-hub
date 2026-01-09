@@ -1,13 +1,11 @@
 * {
-  font-family: "DroidSans", Helvetica, sans-serif;
-
-  @apply border-gray-300;
+  @apply border-slate-300 dark:border-slate-700;
 }
 
 body {
-  @apply w-screen h-screen overflow-hidden;
-  @apply bg-gray-100 text-gray-900;
-  /* @apply dark:bg-gray-700 dark:text-gray-200; */
+  @apply w-screen h-screen overflow-hidden transition-colors;
+  @apply bg-slate-100 text-slate-900;
+  @apply dark:bg-slate-900 dark:text-slate-100;
 }
 
 #root,
@@ -19,6 +17,11 @@ h1,
 h2,
 h3 {
   @apply border-b;
+
+  .lucide,
+  .icon {
+    @apply text-slate-400 dark:text-slate-600;
+  }
 }
 
 h1 {

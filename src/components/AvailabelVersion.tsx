@@ -27,15 +27,17 @@ function Asset({ asset, version, children }: AssetProps) {
   const [isInstalling, setIsInstalling] = useState(false);
 
   return (
-    <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
-      <span className="flex items-center gap-1 py-1 px-2 text-xs text-gray-500">
+    <div className="button-group">
+      <span className="flex items-center gap-1 py-1 px-2 text-xs text-slate-500">
         {children}
         {filesize(asset.size)}
       </span>
       <Tooltip tooltip="Install">
         <Button
           disabled={isInstalling || asset.id in installing}
-          className="py-1 px-2 text-xs text-gray-500 rounded-none"
+          size="small"
+          variant="secondary"
+          className="h-full rounded-none"
           onClick={async () => {
             if (!isInstalling && !(asset.id in installing)) {
               setIsInstalling(true);
@@ -67,7 +69,9 @@ function Asset({ asset, version, children }: AssetProps) {
       <Tooltip tooltip="Install at">
         <Button
           disabled={isInstalling || asset.id in installing}
-          className="py-1 px-2 text-gray-500 rounded-none text-xs"
+          size="small"
+          variant="secondary"
+          className="h-full rounded-none"
           onClick={async () => {
             const folder = await open({
               directory: true,
@@ -108,18 +112,18 @@ function AssetSkeleton() {
   return (
     <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
       <span className="flex items-center gap-1 py-1 px-2">
-        <div className="size-5 rounded bg-gray-200" />
+        <div className="size-5 rounded bg-slate-200" />
         <div
-          className="h-3 rounded bg-gray-200 hidden lg:inline"
+          className="h-3 rounded bg-slate-200 hidden lg:inline"
           style={{
             width: `${20 + Math.random() * 20}px`,
           }}
         />
       </span>
-      <div className="py-1 px-2 text-xs text-gray-500 rounded-none">
+      <div className="py-1 px-2 text-xs text-slate-500 rounded-none">
         <FolderIcon size={18} />
       </div>
-      <div className="py-1 px-2 text-xs text-gray-500 rounded-none">
+      <div className="py-1 px-2 text-xs text-slate-500 rounded-none">
         <FolderSearchIcon size={18} />
       </div>
     </div>
@@ -172,7 +176,7 @@ export default function AvailableVersion({
   }, [version, platform, arch]);
 
   return (
-    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors border border-transparent hover:bg-gray-200/25 hover:border-gray-200 rounded-lg">
+    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors rounded-lg">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <a
@@ -183,11 +187,11 @@ export default function AvailableVersion({
         >
           <LinkIcon
             size={12}
-            className="text-gray-500"
+            className="text-slate-500"
           />
           {version.name}
         </a>
-        <div className="text-xs text-gray-500 flex items-center gap-1">
+        <div className="text-xs text-slate-500 flex items-center gap-1">
           <span>
             Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
           </span>
@@ -202,7 +206,7 @@ export default function AvailableVersion({
             asset={asset}
             version={version.name}
           >
-            <GodotLogo className="size-5 text-gray-500" />
+            <GodotLogo className="size-5 text-slate-500" />
           </Asset>
         ))}
         {monoAssets.map((asset) => (
@@ -211,7 +215,7 @@ export default function AvailableVersion({
             asset={asset}
             version={`${version.name}-mono`}
           >
-            <DotNetLogo className="size-5 text-gray-500" />
+            <DotNetLogo className="size-5 text-slate-500" />
           </Asset>
         ))}
       </div>
@@ -228,16 +232,16 @@ AvailableVersion.Skeleton = function () {
         <div className="flex items-center gap-1 w-fit">
           <LinkIcon
             size={12}
-            className="text-gray-500"
+            className="text-slate-500"
           />
           <div
-            className="h-4 rounded bg-gray-200"
+            className="h-4 rounded bg-slate-200"
             style={{
               width: `${100 + Math.random() * 50}px`,
             }}
           />
         </div>
-        <div className="text-xs text-gray-500 flex items-center gap-1">
+        <div className="text-xs text-slate-500 flex items-center gap-1">
           <span>Created at: HH:mm MM/DD/YYYY</span>
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function AppPage({
       {/* Header */}
       <div className="flex flex-col items-stretch gap-4">
         <h1 className="flex items-center gap-1">
-          <span className="text-gray-400">
+          <span className="text-slate-400">
             <Icon />
           </span>
           {title}

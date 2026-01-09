@@ -1,21 +1,109 @@
 .button {
-  @apply whitespace-nowrap rounded py-2 px-4 transition-all cursor-pointer flex items-center gap-1;
+  @apply whitespace-nowrap transition-all cursor-pointer flex items-center;
+
+  &.regular {
+    @apply rounded-md py-2 px-4 gap-2;
+  }
+
+  &.small {
+    @apply rounded py-1 px-2 gap-1 text-sm;
+  }
+
+  &.tiny {
+    @apply rounded-xs py-0.5 px-1 gap-0.5 text-xs;
+  }
+
+  &.primary {
+    @apply text-slate-100 bg-slate-900 hover:bg-slate-700;
+
+    @apply dark:text-slate-900 dark:bg-slate-100 dark:hover:bg-slate-200;
+
+    .lucide,
+    .icon {
+      @apply text-slate-500;
+    }
+  }
+
+  &.secondary {
+    @apply text-slate-900 bg-slate-100 hover:bg-slate-200;
+
+    @apply dark:text-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800;
+
+    .lucide,
+    .icon {
+      @apply text-slate-500;
+    }
+  }
+
+  &.destructive {
+    @apply text-red-500 bg-red-500/10 hover:bg-red-500/25;
+
+    .lucide,
+    .icon {
+      @apply text-red-500/50;
+    }
+  }
 }
 
 .badge {
   @apply text-xs rounded-sm inline-flex items-center gap-1 px-0.5;
-  @apply text-gray-500 bg-gray-200;
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  &.primary {
+    @apply text-slate-500 bg-slate-200 dark:bg-slate-800;
+  }
+
+  &.red {
+    @apply text-red-500 bg-red-500/10;
+  }
+
+  &.orange {
+    @apply text-orange-500 bg-orange-500/10;
+  }
+
+  &.yellow {
+    @apply text-orange-500 bg-orange-500/10;
+  }
+
+  &.green {
+    @apply text-green-500 bg-green-500/10;
+  }
+
+  &.cyan {
+    @apply text-cyan-500 bg-cyan-500/10;
+  }
+
+  &.blue {
+    @apply text-blue-500 bg-blue-500/10;
+  }
+
+  &.purple {
+    @apply text-purple-500 bg-purple-500/10;
+  }
+
+  &.pink {
+    @apply text-rose-500 bg-rose-500/10;
+  }
+}
+
+.button-group {
+  @apply flex items-stretch border rounded-md overflow-hidden divide-x;
 }
 
 .spinner {
   @apply animate-spin border-2 rounded-full w-8 h-8 shrink-0;
-  @apply border-gray-300 border-b-black;
+  @apply border-transparent border-b-slate-900 dark:border-b-slate-100;
 }
 
 .tooltip {
   @apply pointer-events-none transition-opacity text-center max-w-16 fixed text-xs py-0.5 px-1 rounded;
   @apply before:absolute before:rotate-45 before:size-2 before:-z-1;
-  @apply bg-gray-900 before:bg-gray-900 text-gray-100;
+
+  @apply bg-slate-900 before:bg-slate-900 text-slate-100;
+  @apply dark:bg-slate-100 dark:before:bg-slate-100 dark:text-slate-900;
 
   &.top,
   &.bottom {
