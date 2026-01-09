@@ -1,23 +1,40 @@
 .side-bar {
   @apply flex flex-col items-stretch border-r;
   @apply bg-slate-200 dark:bg-slate-800;
+
+  .tab-selector {
+    @apply whitespace-nowrap cursor-pointer transition-colors p-3 outline-0 flex items-center;
+
+    @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
+
+    .text {
+      @apply transition-all max-w-full duration-300 overflow-hidden ml-2;
+
+      &[data-collapsed] {
+        @apply max-w-0 ml-0;
+      }
+    }
+  }
 }
 
 .app-header {
-  @apply cursor-default select-none flex items-end justify-center px-6 py-7 gap-1 lg:gap-2;
+  @apply w-fit transition-all cursor-default select-none flex items-end justify-center p-6;
+
+  &[data-collapsed] {
+    @apply p-2;
+
+    .text {
+      @apply max-w-0 ml-0;
+    }
+  }
 
   .logo {
-    @apply size-6 lg:size-8 shrink-0;
+    @apply size-8 shrink-0;
   }
 
   .text {
-    @apply font-bold text-2xl lg:text-4xl whitespace-nowrap;
+    @apply transition-all max-w-full font-bold text-3xl whitespace-nowrap overflow-hidden gap-1 ml-1;
   }
-}
-
-.tab-selector {
-  @apply whitespace-nowrap cursor-pointer transition-colors px-4 py-2 outline-0 flex items-center gap-1;
-  @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
 }
 
 .title-bar {

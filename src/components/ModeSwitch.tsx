@@ -1,7 +1,13 @@
 import { MoonStarIcon, SunIcon } from "lucide-react";
 import { useEffect } from "react";
 
-export default function ModeSwitch() {
+import classList from "@/utils/classList";
+
+interface ModeSwitchProps {
+  className?: string;
+}
+
+export default function ModeSwitch({ className }: ModeSwitchProps) {
   const toggleMode = (theme = "dark") => {
     document.body.dataset.theme = theme;
 
@@ -22,7 +28,7 @@ export default function ModeSwitch() {
 
   return (
     <div
-      className="mode-switch"
+      className={classList("mode-switch", className)}
       onClick={() => {
         const theme = localStorage.getItem("theme");
 

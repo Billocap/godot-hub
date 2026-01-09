@@ -12,9 +12,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 
 import ModeSwitch from "@/components/ModeSwitch";
+import { useSideBar } from "@/hooks/useSideBar";
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
+  const { setCollapsed } = useSideBar();
 
   const appWindow = useMemo(() => getCurrentWindow(), []);
 
@@ -31,8 +33,16 @@ export default function TitleBar() {
       data-tauri-drag-region
       className="title-bar"
     >
-      <div className="group pl-2">
-        <ModeSwitch />
+      <div className="group">
+        <button
+          className="action"
+          onClick={() => {
+            setCollapsed((prev) => !prev);
+          }}
+        >
+          <MenuIcon size={16} />
+        </button>
+        <ModeSwitch className="mx-2" />
       </div>
       <div className="w-full" />
       <div className="group">

@@ -112,9 +112,9 @@ function AssetSkeleton() {
   return (
     <div className="relative flex items-stretch border rounded-md overflow-hidden divide-x">
       <span className="flex items-center gap-1 py-1 px-2">
-        <div className="size-5 rounded bg-slate-200" />
+        <div className="size-5 rounded bg-slate-200 dark:bg-slate-800" />
         <div
-          className="h-3 rounded bg-slate-200 hidden lg:inline"
+          className="h-3 rounded bg-slate-200 dark:bg-slate-800 hidden lg:inline"
           style={{
             width: `${20 + Math.random() * 20}px`,
           }}
@@ -185,10 +185,7 @@ export default function AvailableVersion({
           rel="noopener noreferrer"
           className="flex items-center gap-1 w-fit"
         >
-          <LinkIcon
-            size={12}
-            className="text-slate-500"
-          />
+          <LinkIcon size={12} />
           {version.name}
         </a>
         <div className="text-xs text-slate-500 flex items-center gap-1">
@@ -230,12 +227,9 @@ AvailableVersion.Skeleton = function () {
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <div className="flex items-center gap-1 w-fit">
-          <LinkIcon
-            size={12}
-            className="text-slate-500"
-          />
+          <LinkIcon size={12} />
           <div
-            className="h-4 rounded bg-slate-200"
+            className="h-4 rounded bg-slate-200 dark:bg-slate-800"
             style={{
               width: `${100 + Math.random() * 50}px`,
             }}

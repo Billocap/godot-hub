@@ -4,12 +4,12 @@ import { When } from "react-if";
 
 import classList from "@/utils/classList";
 
-type BadgeProps = DetailedHTMLProps<
+type DivProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 >;
 
-interface ExtraProps {
+interface BadgeProps extends DivProps {
   variant?: "primary" | Colors;
   closeable?: boolean;
   onClose?: MouseEventHandler<HTMLButtonElement>;
@@ -22,7 +22,7 @@ export default function Badge({
   closeable,
   onClose = () => {},
   ...props
-}: BadgeProps & ExtraProps) {
+}: BadgeProps) {
   return (
     <div
       className={classList("badge", variant, className)}

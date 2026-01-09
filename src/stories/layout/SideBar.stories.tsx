@@ -1,18 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { fn } from "storybook/test";
+import { BookIcon } from "lucide-react";
 
-import ModeSwitch from "@/components/ModeSwitch";
+import SideBar from "@/components/SideBar";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ModeSwitch> = {
-  title: "components/ModeSwitch",
-  component: ModeSwitch,
+const meta: Meta<typeof SideBar.Selector> = {
+  title: "layout/SideBar",
+  component: SideBar.Selector,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
   args: {
-    onClick: fn(),
+    icon: BookIcon,
+    children: "asdf",
   },
 };
 

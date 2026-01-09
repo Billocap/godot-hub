@@ -13,6 +13,10 @@ main {
   @apply flex items-stretch size-full overflow-hidden;
 }
 
+.lucide {
+  @apply text-slate-500;
+}
+
 h1,
 h2,
 h3 {
@@ -48,5 +52,5 @@ h3 {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-500/50 rounded-full;
+  @apply bg-slate-500/50;
 }

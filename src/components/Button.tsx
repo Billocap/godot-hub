@@ -2,12 +2,12 @@ import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
 import classList from "@/utils/classList";
 
-type ButtonProps = DetailedHTMLProps<
+type DivProps = DetailedHTMLProps<
   ButtonHTMLAttributes<HTMLButtonElement>,
   HTMLButtonElement
 >;
 
-interface ExtraProps {
+interface ButtonProps extends DivProps {
   variant?: "primary" | "secondary" | "destructive";
   size?: "regular" | "small" | "tiny";
 }
@@ -17,7 +17,7 @@ export default function Button({
   variant = "primary",
   size = "regular",
   ...props
-}: ButtonProps & ExtraProps) {
+}: ButtonProps) {
   return (
     <button
       type="button"
