@@ -1,5 +1,6 @@
 import {
   DetailedHTMLProps,
+  ElementType,
   HTMLAttributes,
   useMemo,
   useRef,
@@ -11,12 +12,10 @@ import { When } from "react-if";
 import useBodyScroll from "@/hooks/useBodyScroll";
 import classList from "@/utils/classList";
 
-type DivProps = DetailedHTMLProps<
-  HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
->;
+type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLDivElement>;
 
 interface TooltipProps extends DivProps {
+  as?: ElementType<DivProps>;
   tooltip?: string;
   position?: "top" | "left" | "bottom" | "right";
   anchor?: "start" | "center" | "end";
@@ -24,6 +23,7 @@ interface TooltipProps extends DivProps {
 }
 
 export default function Tooltip({
+  as: Element = "div",
   children,
   position = "top",
   anchor = "center",
@@ -90,7 +90,7 @@ export default function Tooltip({
   });
 
   return (
-    <div
+    <Element
       ref={wrapper}
       onMouseEnter={(e) => {
         setIsTooltipVisible(true);
@@ -123,6 +123,6 @@ export default function Tooltip({
         )}
       </When>
       {children}
-    </div>
+    </Element>
   );
 }

@@ -3,6 +3,9 @@ import { FC, ReactNode } from "react";
 
 import { useSideBar } from "@/hooks/useSideBar";
 import AppHeader from "@/layout/AppHeader";
+import classList from "@/utils/classList";
+
+import Tooltip from "./Tooltip";
 
 interface SideBarProps {
   children: ReactNode;
@@ -23,14 +26,20 @@ interface IconProps {
 
 interface SelectorProps {
   icon: FC<IconProps>;
-  children: ReactNode;
+  children: string;
 }
 
 SideBar.Selector = function ({ icon: Icon, children }: SelectorProps) {
   const { collapsed } = useSideBar();
 
   return (
-    <Tab className="tab-selector">
+    <Tooltip
+      as={Tab}
+      tooltip={children}
+      position="right"
+      className="tab-selector"
+      tooltipClassName={classList(collapsed ? "" : "hidden")}
+    >
       <Icon size={24} />
       <span
         className="text"
@@ -38,6 +47,6 @@ SideBar.Selector = function ({ icon: Icon, children }: SelectorProps) {
       >
         {children}
       </span>
-    </Tab>
+    </Tooltip>
   );
 };

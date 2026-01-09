@@ -20,7 +20,7 @@ export default function AppHeader() {
       >
         <span className="hidden lg:inline">Godot </span>
         Hub
-        <Badge>v0.1.0</Badge>
+        <Badge className="font-normal">v0.1.0</Badge>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 .side-bar {
-  @apply w-fit flex flex-col items-stretch border-r;
+  @apply flex flex-col items-stretch border-r;
   @apply bg-slate-200 dark:bg-slate-800;
 
   .tab-selector {
@@ -7,24 +7,20 @@
 
     @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
 
-    .text {
-      @apply transition-all max-w-fit duration-300 overflow-hidden ml-2;
-
-      &[data-collapsed] {
-        @apply max-w-0 ml-0;
-      }
+    .text[data-collapsed] {
+      @apply hidden;
     }
   }
 }
 
 .app-header {
-  @apply w-fit transition-all cursor-default select-none flex items-end justify-center p-6;
+  @apply cursor-default select-none flex items-end justify-center p-6 gap-1;
 
   &[data-collapsed] {
     @apply p-2;
 
     .text {
-      @apply max-w-0 ml-0;
+      @apply hidden;
     }
   }
 
@@ -33,7 +29,7 @@
   }
 
   .text {
-    @apply transition-all max-w-fit font-bold text-3xl whitespace-nowrap overflow-hidden gap-1 ml-1;
+    @apply font-bold text-3xl whitespace-nowrap overflow-hidden flex items-end gap-1;
   }
 }
 
@@ -67,11 +63,11 @@
 }
 
 .mode-switch {
-  @apply relative flex items-center p-0.5 gap-0.5 cursor-pointer rounded-xs transition-all;
+  @apply relative flex items-center p-0.5 gap-0.5 cursor-pointer rounded-full transition-all;
   @apply text-slate-500 bg-slate-300 dark:bg-slate-700;
 
   .swatch {
-    @apply absolute size-4 rounded-xs p-0.5 bg-slate-100 transition-all;
+    @apply absolute size-4 rounded-full bg-slate-100 transition-all;
 
     @apply dark:left-5 dark:bg-slate-900;
   }
