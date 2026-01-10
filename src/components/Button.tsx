@@ -1,3 +1,4 @@
+import { Button as TwButton } from "@headlessui/react";
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
 import classList from "@/utils/classList";
@@ -19,7 +20,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   return (
-    <button
+    <TwButton
       type="button"
       className={classList("button", size, variant, className)}
       {...props}

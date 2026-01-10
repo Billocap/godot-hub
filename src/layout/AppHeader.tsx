@@ -12,12 +12,7 @@ export default function AppHeader() {
       data-collapsed={collapsed ? true : undefined}
     >
       <GodotLogo className="logo" />
-      <div
-        className="text"
-        style={{
-          lineHeight: 1,
-        }}
-      >
+      <div className="text">
         <span className="hidden lg:inline">Godot </span>
         Hub
         <Badge className="font-normal">v0.1.0</Badge>
