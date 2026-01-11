@@ -1,9 +1,10 @@
-import { TabGroup, TabPanel, TabPanels } from "@headlessui/react";
-import { BookIcon } from "lucide-react";
+import { TabGroup, TabPanels } from "@headlessui/react";
+import { BookIcon, FolderCheckIcon } from "lucide-react";
 
 import SideBarProvider from "@/hooks/useSideBar";
 import TitleBar from "@/layout/TitleBar";
-import VersionPage from "@/pages/VersionPage";
+import InstalledPage from "@/pages/InstalledPage";
+import VersionPage from "@/pages/VersionsPage";
 
 import SideBar from "./SideBar";
 
@@ -12,13 +13,15 @@ export default function App() {
     <SideBarProvider>
       <TabGroup as="main">
         <SideBar>
-          <SideBar.Selector icon={BookIcon}>Version Manager</SideBar.Selector>
+          <SideBar.Selector icon={BookIcon}>Version Installer</SideBar.Selector>
+          <SideBar.Selector icon={FolderCheckIcon}>
+            Installed Versions
+          </SideBar.Selector>
         </SideBar>
         <TabPanels className="main-content">
           <TitleBar />
-          <TabPanel className="content">
-            <VersionPage />
-          </TabPanel>
+          <VersionPage />
+          <InstalledPage />
         </TabPanels>
       </TabGroup>
     </SideBarProvider>

@@ -13,7 +13,10 @@ interface SideBarProps {
 
 export default function SideBar({ children }: SideBarProps) {
   return (
-    <TabList className="side-bar">
+    <TabList
+      as="aside"
+      className="side-bar"
+    >
       <AppHeader />
       {children}
     </TabList>

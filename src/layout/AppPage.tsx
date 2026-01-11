@@ -1,32 +1,54 @@
-import { JSX, ReactNode } from "react";
+import { DetailedHTMLProps, FC, HTMLAttributes, ReactNode } from "react";
+import { When } from "react-if";
+
+import classList from "@/utils/classList";
+import { TabPanel } from "@headlessui/react";
+
+type DivProps = DetailedHTMLProps<
+  HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
+
+interface IconProps {
+  size?: number;
+}
 
 interface AppPageProps {
   title: string;
-  icon(): JSX.Element;
-  headerChildren?: () => JSX.Element;
+  description?: string;
+  icon: FC<IconProps>;
   children: ReactNode;
 }
 
 export default function AppPage({
   title,
+  description,
   children,
-  headerChildren: HeaderChildren,
   icon: Icon,
 }: AppPageProps) {
   return (
-    <div className="flex flex-col items-stretch gap-8">
+    <TabPanel className="content">
       {/* Header */}
       <div className="flex flex-col items-stretch gap-4">
-        <h1 className="flex items-center gap-1">
-          <span className="text-slate-400">
-            <Icon />
-          </span>
+        <h1>
+          <Icon size={30} />
           {title}
         </h1>
-        {HeaderChildren ? <HeaderChildren /> : null}
+        <When condition={description}>
+          <p>{description}</p>
+        </When>
       </div>
       {/* Header */}
       {children}
-    </div>
+    </TabPanel>
   );
 }
+
+AppPage.Section = function ({ className, ...props }: DivProps) {
+  return (
+    <div
+      className={classList("flex flex-col gap-4 items-stretch", className)}
+      {...props}
+    />
+  );
+};

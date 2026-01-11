@@ -7,8 +7,10 @@
 
     @apply data-selected:bg-slate-300 dark:data-selected:bg-slate-700;
 
-    .text[data-collapsed] {
-      @apply hidden;
+    .text {
+      &[data-collapsed] {
+        @apply hidden;
+      }
     }
   }
 }
@@ -60,7 +62,7 @@
   @apply size-full flex flex-col items-stretch overflow-hidden;
 
   .content {
-    @apply p-8 lg:p-16 overflow-y-auto overflow-x-hidden;
+    @apply p-8 lg:p-16 overflow-y-auto overflow-x-hidden flex flex-col items-stretch gap-8;
   }
 }
 

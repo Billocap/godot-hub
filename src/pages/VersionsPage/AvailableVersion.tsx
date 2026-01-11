@@ -1,18 +1,24 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
-import { FolderIcon, FolderSearchIcon, LinkIcon } from "lucide-react";
+import {
+  ArrowBigDownIcon,
+  ArrowBigUpIcon,
+  FolderIcon,
+  FolderSearchIcon,
+  LinkIcon,
+} from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
-import { Else, If, Then } from "react-if";
+import { Else, If, Then, When } from "react-if";
 
-import DotNetLogo from "../assets/dotnet-tile.svg?react";
-import GodotLogo from "../assets/godot-dark.svg?react";
-import { useSettings } from "../hooks/controllers/useSettings";
-import { useVersions } from "../hooks/controllers/useVersions";
-
-import Button from "./Button";
-import Spinner from "./Spinner";
-import Tooltip from "./Tooltip";
+import DotNetLogo from "@/assets/dotnet-tile.svg?react";
+import GodotLogo from "@/assets/godot-dark.svg?react";
+import Badge from "@/components/Badge";
+import Button from "@/components/Button";
+import Spinner from "@/components/Spinner";
+import Tooltip from "@/components/Tooltip";
+import { useSettings } from "@/hooks/controllers/useSettings";
+import { useVersions } from "@/hooks/controllers/useVersions";
 
 interface AssetProps {
   asset: any;
@@ -176,22 +182,36 @@ export default function AvailableVersion({
   }, [version, platform, arch]);
 
   return (
-    <div className="overflow-hidden flex items-center justify-between p-2 transition-colors rounded-lg">
+    <div className="overflow-hidden flex items-center justify-between">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <a
           href={version.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1 w-fit"
+          className="flex items-center gap-1 w-fit underline"
         >
-          <LinkIcon size={12} />
+          <LinkIcon size={16} />
           {version.name}
         </a>
+        <div className="flex items-center gap-1">
+          <Badge>
+            <ArrowBigUpIcon size={12} />
+            <If condition={version.reactions && "+1" in version.reactions}>
+              <Then>{() => version.reactions["+1"]}</Then>
+              <Else>0</Else>
+            </If>
+          </Badge>
+          <Badge>
+            <ArrowBigDownIcon size={12} />
+            <If condition={version.reactions && "-1" in version.reactions}>
+              <Then>{() => version.reactions["-1"]}</Then>
+              <Else>0</Else>
+            </If>
+          </Badge>
+        </div>
         <div className="text-xs text-slate-500 flex items-center gap-1">
-          <span>
-            Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
-          </span>
+          Created at: {moment(version.created_at).format("HH:mm MM/DD/YYYY")}
         </div>
       </div>
       {/* Version Info */}
@@ -223,7 +243,7 @@ export default function AvailableVersion({
 
 AvailableVersion.Skeleton = function () {
   return (
-    <div className="animate-pulse overflow-hidden flex items-center justify-between p-2 border border-transparent">
+    <div className="animate-pulse overflow-hidden flex items-center justify-between">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <div className="flex items-center gap-1 w-fit">
@@ -232,6 +252,20 @@ AvailableVersion.Skeleton = function () {
             className="h-4 rounded bg-slate-200 dark:bg-slate-800"
             style={{
               width: `${100 + Math.random() * 50}px`,
+            }}
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <div
+            className="h-4 rounded bg-slate-200 dark:bg-slate-800"
+            style={{
+              width: `${16 + Math.random() * 16}px`,
+            }}
+          />
+          <div
+            className="h-4 rounded bg-slate-200 dark:bg-slate-800"
+            style={{
+              width: `${16 + Math.random() * 16}px`,
             }}
           />
         </div>

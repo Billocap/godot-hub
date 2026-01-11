@@ -1,0 +1,76 @@
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { openPath } from "@tauri-apps/plugin-opener";
+import { filesize } from "filesize";
+import { FolderIcon, FolderXIcon } from "lucide-react";
+import moment from "moment";
+import { useState } from "react";
+
+import Badge from "@/components/Badge";
+import Button from "@/components/Button";
+import Tooltip from "@/components/Tooltip";
+import VersionController from "@/controllers/VersionController";
+import VersionsHandler from "@/handler/VersionsHandler";
+import { useVersions } from "@/hooks/controllers/useVersions";
+import { Else, If, Then } from "react-if";
+import Spinner from "@/components/Spinner";
+
+interface InstalledVersionProps {
+  version: VersionController;
+}
+
+export default function InstalledVersion({ version }: InstalledVersionProps) {
+  const { uninstallVersion } = useVersions();
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-full flex flex-col items-stretch gap-2 overflow-hidden">
+        <Tooltip
+          as="span"
+          position="right"
+          tooltip="Click to open"
+          onClick={() => openPath(version.path)}
+          className="cursor-pointer flex items-center gap-1 w-fit"
+        >
+          <FolderIcon size={16} />
+          {version.name}
+          <Badge>{filesize(version.size)}</Badge>
+        </Tooltip>
+        <Tooltip
+          position="right"
+          tooltip="Click to copy"
+          className="cursor-pointer w-fit text-xs text-slate-500 flex text-ellipsis whitespace-nowrap"
+          onClick={() => {
+            writeText(version.path);
+          }}
+        >
+          {version.path}
+        </Tooltip>
+        <p className="text-xs text-slate-500">
+          Created at: {moment(version.createdAt).format("HH:mm MM/DD/YYYY")}
+        </p>
+      </div>
+      <Button
+        size="small"
+        disabled={isDeleting}
+        variant="destructive"
+        onClick={() => {
+          setIsDeleting(true);
+
+          uninstallVersion(version.id).finally(() => setIsDeleting(false));
+        }}
+      >
+        <If condition={isDeleting}>
+          <Then>
+            <Spinner className="size-3.5" />
+          </Then>
+          <Else>
+            <FolderXIcon size={14} />
+          </Else>
+        </If>
+        Uninstall Version
+      </Button>
+    </div>
+  );
+}

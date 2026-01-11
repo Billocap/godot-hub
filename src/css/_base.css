@@ -20,7 +20,7 @@ main {
 h1,
 h2,
 h3 {
-  @apply border-b;
+  @apply border-b flex items-center gap-2 font-normal;
 
   .lucide,
   .icon {

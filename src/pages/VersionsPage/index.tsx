@@ -3,22 +3,28 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
 import {
   BookIcon,
+  CircleAlertIcon,
+  FolderCheckIcon,
+  FolderClockIcon,
   FolderIcon,
-  FolderPlusIcon,
+  FolderSearchIcon,
   RefreshCwIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
 
-import AvailableVersion from "@/components/AvailabelVersion";
-import Button from "../components/Button";
-import DownloadingVersion from "../components/DownloadingVersion";
-import InstalledVersion from "../components/InstalledVersion";
-import { useSettings } from "../hooks/controllers/useSettings";
-import { useVersions } from "../hooks/controllers/useVersions";
-import useBodyScroll from "../hooks/useBodyScroll";
-import AppPage from "../layout/AppPage";
-import octokit from "../services/octokit";
+import Button from "@/components/Button";
+import Callout from "@/components/Callout";
+import Tooltip from "@/components/Tooltip";
+import { useSettings } from "@/hooks/controllers/useSettings";
+import { useVersions } from "@/hooks/controllers/useVersions";
+import useBodyScroll from "@/hooks/useBodyScroll";
+import AppPage from "@/layout/AppPage";
+import octokit from "@/services/octokit";
+
+import AvailableVersion from "./AvailableVersion";
+import DownloadingVersion from "./DownloadingVersion";
+import InstalledVersion from "./InstalledVersion";
 
 const repo = {
   owner: "godotengine",
@@ -116,25 +122,36 @@ export default function VersionPage() {
 
   return (
     <AppPage
-      icon={() => <BookIcon />}
-      title="Version Manager"
-      headerChildren={() => (
+      icon={BookIcon}
+      title="Version Installer"
+      description="Install different versions of Godot."
+    >
+      <AppPage.Section>
+        <h2>
+          <FolderIcon /> Installation Folder
+        </h2>
+        <Callout
+          icon={CircleAlertIcon}
+          title="Choose an installation folder."
+          variant="blue"
+        >
+          It is recommended you keep all your Godot installs on the same folder.
+        </Callout>
         <div className="flex items-center gap-4 justify-between">
-          <span
-            className="text-slate-500 flex items-center gap-1 w-full whitespace-nowrap overflow-hidden cursor-pointer"
-            onClick={() => {
-              openPath(settings.versionsFolder);
-            }}
+          <Tooltip
+            as="span"
+            position="right"
+            tooltip="Click to open"
+            onClick={() => openPath(settings.versionsFolder)}
+            className="flex items-center gap-1 whitespace-nowrap overflow-hidden cursor-pointer"
           >
-            <span className="hidden lg:inline">Current Folder:</span>
-            <span className="inline lg:hidden">
-              <FolderIcon size={16} />
-            </span>
+            <FolderIcon size={16} />
             <span className="overflow-hidden text-ellipsis">
               {settings.versionsFolder}
             </span>
-          </span>
+          </Tooltip>
           <Button
+            size="small"
             onClick={async () => {
               const folder = await open({
                 directory: true,
@@ -147,50 +164,48 @@ export default function VersionPage() {
               }
             }}
           >
-            <FolderPlusIcon
-              size={16}
-              strokeWidth={2.5}
-            />
+            <FolderSearchIcon size={14} />
             Select Folder
           </Button>
         </div>
-      )}
-    >
+      </AppPage.Section>
       <When condition={Object.entries(installing).length}>
-        <div className="flex flex-col items-stretch gap-2">
-          <h2>Install Queue</h2>
-          {Object.entries(installing).map(([id, v]) => (
+        <AppPage.Section>
+          <h2>
+            <FolderClockIcon /> Install Queue
+          </h2>
+          {Object.entries(installing).map(([id, version]) => (
             <DownloadingVersion
               key={id}
-              version={v}
+              version={version}
             />
           ))}
-        </div>
+        </AppPage.Section>
       </When>
       <When
         condition={
           settings.versionsFolder.length != 0 && installedVersions.length != 0
         }
       >
-        <div className="flex flex-col items-stretch gap-2">
-          <h2>Installed Versions</h2>
+        <AppPage.Section>
+          <h2>
+            <FolderCheckIcon /> Installed Versions
+          </h2>
           {installedVersions.map((version) => (
             <InstalledVersion
               key={version.key}
               version={version}
-              onUpdate={() => {
-                updateInstalled();
-              }}
             />
           ))}
-        </div>
+        </AppPage.Section>
       </When>
-      <div className="flex flex-col items-stretch gap-2">
-        <h2 className="flex items-center justify-between">
-          Available Versions
+      <AppPage.Section>
+        <h2>
+          <BookIcon />
+          <p className="w-full">Available Versions</p>
           <Button
-            variant="secondary"
             size="tiny"
+            variant="secondary"
             onClick={() => {
               fetchVersions();
             }}
@@ -216,7 +231,7 @@ export default function VersionPage() {
             <AvailableVersion.Skeleton key={id} />
           ))}
         </When>
-      </div>
+      </AppPage.Section>
     </AppPage>
   );
 }

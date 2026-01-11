@@ -23,6 +23,7 @@ interface VersionsContext {
     url: string,
     assetName: string
   ): Promise<unknown>;
+  uninstallVersion(id: string): Promise<unknown>;
 }
 
 const VersionContext = createContext({} as VersionsContext);
@@ -77,6 +78,13 @@ export default function VersionsProvider({ children }: VersionsProviderProps) {
           return { ...prev };
         });
 
+        updateInstalled();
+      }
+    },
+    async uninstallVersion(id: string) {
+      try {
+        await VersionsHandler.uninstallVersion(id);
+      } finally {
         updateInstalled();
       }
     },
