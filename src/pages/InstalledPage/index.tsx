@@ -1,12 +1,13 @@
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { openPath } from "@tauri-apps/plugin-opener";
-import { CopyIcon, FolderCheckIcon, FolderIcon, PlayIcon } from "lucide-react";
+import { filesize } from "filesize";
+import { FolderCheckIcon, FolderIcon, PlayIcon } from "lucide-react";
 
 import Button from "@/components/Button";
 import Tooltip from "@/components/Tooltip";
+import VersionsHandler from "@/handler/VersionsHandler";
 import { useVersions } from "@/hooks/controllers/useVersions";
 import AppPage from "@/layout/AppPage";
-import VersionsHandler from "@/handler/VersionsHandler";
 
 export default function InstalledPage() {
   const { installedVersions } = useVersions();
@@ -15,7 +16,7 @@ export default function InstalledPage() {
     <AppPage
       icon={FolderCheckIcon}
       title="Installed Versions"
-      description="Manage the Godot versions you have installed."
+      description="Detailed information about the Godot versions you have installed."
     >
       {installedVersions.map((version) => (
         <AppPage.Section key={version.id}>
@@ -23,40 +24,47 @@ export default function InstalledPage() {
             <FolderIcon /> {version.name}
           </h2>
           <div className="flex items-center gap-2">
-            <div className="w-full flex flex-col items-stretch gap-1">
+            <div className="w-full flex flex-col items-stretch gap-1 overflow-hidden">
+              <div className="text-slate-500 text-xs w-fit cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap">
+                Size: {filesize(version.size)}
+              </div>
               <Tooltip
                 position="right"
                 tooltip="Click to copy"
-                className="text-slate-500 text-xs w-fit cursor-pointer"
+                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full text-ellipsis whitespace-nowrap"
                 onClick={() => {
                   writeText(version.path);
                 }}
               >
                 Location: {version.path}
               </Tooltip>
-              <div className="flex items-center gap-1">
-                <Button
-                  size="tiny"
-                  variant="secondary"
-                  onClick={() => {
-                    writeText(version.editorPath);
-                  }}
-                >
-                  <CopyIcon size={12} />
-                  Copy Editor Path
-                </Button>
-                <Button
-                  size="tiny"
-                  variant="secondary"
-                  onClick={() => {
-                    writeText(version.consolePath);
-                  }}
-                >
-                  <CopyIcon size={12} />
-                  Copy Console Path
-                </Button>
-              </div>
-              <div className="text-slate-500 text-xs flex items-center gap-2">
+              <Tooltip
+                position="right"
+                tooltip="Click to copy"
+                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                onClick={() => {
+                  writeText(version.editorPath);
+                }}
+              >
+                {"Editor: "}
+                {version.editorPath
+                  .replace(version.path, "")
+                  .replace(/[\\\/]/g, "")}
+              </Tooltip>
+              <Tooltip
+                position="right"
+                tooltip="Click to copy"
+                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                onClick={() => {
+                  writeText(version.consolePath);
+                }}
+              >
+                {"Console: "}
+                {version.consolePath
+                  .replace(version.path, "")
+                  .replace(/[\\\/]/g, "")}
+              </Tooltip>
+              <div className="text-slate-500 text-xs flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 <span>Created at: {version.createdAt}</span>
                 <span>Updated at: {version.updatedAt}</span>
               </div>

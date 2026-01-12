@@ -4,15 +4,14 @@ import { filesize } from "filesize";
 import { FolderIcon, FolderXIcon } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
+import { Else, If, Then } from "react-if";
 
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
+import Spinner from "@/components/Spinner";
 import Tooltip from "@/components/Tooltip";
 import VersionController from "@/controllers/VersionController";
-import VersionsHandler from "@/handler/VersionsHandler";
 import { useVersions } from "@/hooks/controllers/useVersions";
-import { Else, If, Then } from "react-if";
-import Spinner from "@/components/Spinner";
 
 interface InstalledVersionProps {
   version: VersionController;
