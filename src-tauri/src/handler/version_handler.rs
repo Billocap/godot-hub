@@ -27,7 +27,7 @@ pub async fn download_version(
   at_path: String
 ) -> Result<HashMap<String, version_controller::VersionData>, String> {
   let notify = |m: &str| {
-    let _r = app.emit("file_updated", (id, m.to_owned()));
+    let _ = app.emit("file_updated", (id, m.to_owned()));
   };
   let cache = state
     .lock()
@@ -106,28 +106,10 @@ pub fn start_editor(
     .map_err(|e| e.to_string())?
     .versions.versions.get(&id)
     .unwrap()
-    .editor_path.clone();
-
-  let _c = Command::new(&editor)
-    .spawn()
-    .map_err(|e| e.to_string())?;
-
-  Ok(editor)
-}
-
-#[tauri::command]
-pub fn start_console(
-  state: State<'_, Mutex<AppController>>,
-  id: String
-) -> Result<PathBuf, String> {
-  let editor = state
-    .lock()
-    .map_err(|e| e.to_string())?
-    .versions.versions.get(&id)
-    .unwrap()
     .console_path.clone();
 
-  let _c = Command::new(&editor)
+  let _ = Command::new("start")
+    .arg(&editor)
     .spawn()
     .map_err(|e| e.to_string())?;
 

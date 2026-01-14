@@ -36,6 +36,8 @@ interface Pagination {
   canPaginate: boolean;
 }
 
+const PER_PAGE = 15;
+
 export default function VersionPage() {
   const { settings, dispatchSettings } = useSettings();
   const { installing, installedVersions, updateInstalled } = useVersions();
@@ -87,6 +89,7 @@ export default function VersionPage() {
     const { data, headers } = await octokit.repos.listReleases({
       ...repo,
       page,
+      per_page: PER_PAGE,
     });
 
     setPagination({
@@ -207,6 +210,8 @@ export default function VersionPage() {
             size="tiny"
             variant="secondary"
             onClick={() => {
+              setVersions([]);
+
               fetchVersions();
             }}
           >
@@ -227,7 +232,7 @@ export default function VersionPage() {
           </When>
         ))}
         <When condition={isLoading}>
-          {new Array(30).fill(0).map((_, id) => (
+          {new Array(PER_PAGE).fill(0).map((_, id) => (
             <AvailableVersion.Skeleton key={id} />
           ))}
         </When>

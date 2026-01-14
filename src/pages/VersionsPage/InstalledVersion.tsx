@@ -51,7 +51,6 @@ export default function InstalledVersion({ version }: InstalledVersionProps) {
         </p>
       </div>
       <Button
-        size="small"
         disabled={isDeleting}
         variant="destructive"
         onClick={() => {
@@ -62,10 +61,10 @@ export default function InstalledVersion({ version }: InstalledVersionProps) {
       >
         <If condition={isDeleting}>
           <Then>
-            <Spinner className="size-3.5" />
+            <Spinner className="size-4" />
           </Then>
           <Else>
-            <FolderXIcon size={14} />
+            <FolderXIcon size={16} />
           </Else>
         </If>
         Uninstall Version

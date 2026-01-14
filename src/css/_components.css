@@ -130,7 +130,7 @@
 }
 
 .callout {
-  @apply text-xs rounded flex gap-2 p-2;
+  @apply text-sm rounded flex gap-2 p-2;
 
   &.primary {
     @apply bg-slate-200 dark:bg-slate-800;

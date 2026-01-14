@@ -1,7 +1,10 @@
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { openPath } from "@tauri-apps/plugin-opener";
+import { platform } from "@tauri-apps/plugin-os";
 import { filesize } from "filesize";
 import { FolderCheckIcon, FolderIcon, PlayIcon } from "lucide-react";
+import { default as nodePath } from "path-browserify";
+import { useCallback } from "react";
 
 import Button from "@/components/Button";
 import Tooltip from "@/components/Tooltip";
@@ -11,6 +14,17 @@ import AppPage from "@/layout/AppPage";
 
 export default function InstalledPage() {
   const { installedVersions } = useVersions();
+
+  const currentPlatform = platform();
+
+  const basename = useCallback(
+    (p: string) => {
+      const path = p.replace(/\\/g, "/");
+
+      return nodePath.basename(path);
+    },
+    [currentPlatform]
+  );
 
   return (
     <AppPage
@@ -24,14 +38,14 @@ export default function InstalledPage() {
             <FolderIcon /> {version.name}
           </h2>
           <div className="flex items-center gap-2">
-            <div className="w-full flex flex-col items-stretch gap-1 overflow-hidden">
-              <div className="text-slate-500 text-xs w-fit cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap">
+            <div className="text-slate-500 text-xs w-full flex flex-col items-stretch gap-1 overflow-hidden">
+              <div className="w-fit overflow-hidden text-ellipsis whitespace-nowrap">
                 Size: {filesize(version.size)}
               </div>
               <Tooltip
                 position="right"
                 tooltip="Click to copy"
-                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full text-ellipsis whitespace-nowrap"
+                className="w-fit cursor-pointer max-w-full text-ellipsis whitespace-nowrap"
                 onClick={() => {
                   writeText(version.path);
                 }}
@@ -41,30 +55,24 @@ export default function InstalledPage() {
               <Tooltip
                 position="right"
                 tooltip="Click to copy"
-                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                className="w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                 onClick={() => {
                   writeText(version.editorPath);
                 }}
               >
-                {"Editor: "}
-                {version.editorPath
-                  .replace(version.path, "")
-                  .replace(/[\\\/]/g, "")}
+                Editor: {basename(version.editorPath)}
               </Tooltip>
               <Tooltip
                 position="right"
                 tooltip="Click to copy"
-                className="text-slate-500 text-xs w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                className="w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                 onClick={() => {
                   writeText(version.consolePath);
                 }}
               >
-                {"Console: "}
-                {version.consolePath
-                  .replace(version.path, "")
-                  .replace(/[\\\/]/g, "")}
+                Console: {basename(version.consolePath)}
               </Tooltip>
-              <div className="text-slate-500 text-xs flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 <span>Created at: {version.createdAt}</span>
                 <span>Updated at: {version.updatedAt}</span>
               </div>

@@ -28,7 +28,6 @@ pub fn run() {
         handler::version_handler::download_version,
         handler::version_handler::remove_version,
         handler::version_handler::start_editor,
-        handler::version_handler::start_console,
         handler::settings_handler::load_settings,
         handler::settings_handler::update_settings
       ]
