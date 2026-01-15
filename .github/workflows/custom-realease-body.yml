@@ -1,0 +1,32 @@
+name: "auto-realease-body"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read Release Notes
+        id: read_release
+        run: |
+          echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+          cat ./package.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - run: |
+          echo '${{ fromJson(env.PACKAGE_JSON).version }}'
+      - run: |
+          # Use a delimiter to handle multi-line content safely
+          {
+            echo "body<<EOF"
+            cat /doc/changes/note.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.read_release.outputs.body }}
