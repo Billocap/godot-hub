@@ -14,7 +14,7 @@ jobs:
         id: read_release
         run: |
           echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-          cat ../package.json >> $GITHUB_ENV
+          cat ../../package.json >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - run: |
           echo '${{ fromJson(env.PACKAGE_JSON).version }}'
@@ -22,7 +22,7 @@ jobs:
           # Use a delimiter to handle multi-line content safely
           {
             echo "body<<EOF"
-            cat ../doc/changes/note.md
+            cat ../../doc/changes/note.md
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
