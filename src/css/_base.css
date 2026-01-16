@@ -13,7 +13,8 @@ main {
   @apply flex items-stretch size-full overflow-hidden;
 }
 
-.lucide {
+.lucide,
+.icon {
   @apply text-slate-500;
 }
 

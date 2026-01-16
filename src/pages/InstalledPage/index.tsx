@@ -7,7 +7,7 @@ import { default as nodePath } from "path-browserify";
 import { useCallback } from "react";
 
 import Button from "@/components/Button";
-import Tooltip from "@/components/Tooltip";
+import TooltipContainer from "@/components/Tooltip";
 import VersionsHandler from "@/handler/VersionsHandler";
 import { useVersions } from "@/hooks/controllers/useVersions";
 import AppPage from "@/layout/AppPage";
@@ -42,7 +42,7 @@ export default function InstalledPage() {
               <div className="w-fit overflow-hidden text-ellipsis whitespace-nowrap">
                 Size: {filesize(version.size)}
               </div>
-              <Tooltip
+              <TooltipContainer
                 position="right"
                 tooltip="Click to copy"
                 className="w-fit cursor-pointer max-w-full text-ellipsis whitespace-nowrap"
@@ -51,8 +51,8 @@ export default function InstalledPage() {
                 }}
               >
                 Location: {version.path}
-              </Tooltip>
-              <Tooltip
+              </TooltipContainer>
+              <TooltipContainer
                 position="right"
                 tooltip="Click to copy"
                 className="w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
@@ -61,8 +61,8 @@ export default function InstalledPage() {
                 }}
               >
                 Editor: {basename(version.editorPath)}
-              </Tooltip>
-              <Tooltip
+              </TooltipContainer>
+              <TooltipContainer
                 position="right"
                 tooltip="Click to copy"
                 className="w-fit cursor-pointer max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
@@ -71,7 +71,7 @@ export default function InstalledPage() {
                 }}
               >
                 Console: {basename(version.consolePath)}
-              </Tooltip>
+              </TooltipContainer>
               <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 <span>Created at: {version.createdAt}</span>
                 <span>Updated at: {version.updatedAt}</span>

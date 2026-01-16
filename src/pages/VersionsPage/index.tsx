@@ -3,6 +3,7 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
 import {
   BookIcon,
+  BookmarkIcon,
   CircleAlertIcon,
   FolderCheckIcon,
   FolderClockIcon,
@@ -11,11 +12,11 @@ import {
   RefreshCwIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { When } from "react-if";
+import { Else, If, Then, When } from "react-if";
 
 import Button from "@/components/Button";
 import Callout from "@/components/Callout";
-import Tooltip from "@/components/Tooltip";
+import TooltipContainer from "@/components/Tooltip";
 import { useSettings } from "@/hooks/controllers/useSettings";
 import { useVersions } from "@/hooks/controllers/useVersions";
 import useBodyScroll from "@/hooks/useBodyScroll";
@@ -44,6 +45,7 @@ export default function VersionPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [versions, setVersions] = useState<any[]>([]);
+  const [latest, setLatest] = useState<any>(null);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     canPaginate: true,
@@ -83,6 +85,14 @@ export default function VersionPage() {
     }
   }, [currentPlatform]);
 
+  const fetchLatest = async () => {
+    const { data } = await octokit.repos.getLatestRelease({
+      ...repo,
+    });
+
+    setLatest(data);
+  };
+
   const fetchVersions = async (page = 1) => {
     setIsLoading(true);
 
@@ -103,6 +113,8 @@ export default function VersionPage() {
   };
 
   useEffect(() => {
+    fetchLatest();
+
     fetchVersions();
   }, []);
 
@@ -141,7 +153,7 @@ export default function VersionPage() {
           It is recommended you keep all your Godot installs on the same folder.
         </Callout>
         <div className="flex items-center gap-4 justify-between">
-          <Tooltip
+          <TooltipContainer
             as="span"
             position="right"
             tooltip="Click to open"
@@ -152,7 +164,7 @@ export default function VersionPage() {
             <span className="overflow-hidden text-ellipsis">
               {settings.versionsFolder}
             </span>
-          </Tooltip>
+          </TooltipContainer>
           <Button
             size="small"
             onClick={async () => {
@@ -202,6 +214,37 @@ export default function VersionPage() {
           ))}
         </AppPage.Section>
       </When>
+      <AppPage.Section>
+        <h2>
+          <BookmarkIcon />
+          <p className="w-full">Latest Version</p>
+          <Button
+            disabled={latest === null}
+            size="tiny"
+            variant="secondary"
+            onClick={() => {
+              setLatest(null);
+
+              fetchLatest();
+            }}
+          >
+            <RefreshCwIcon size={12} />
+            Refresh
+          </Button>
+        </h2>
+        <If condition={latest}>
+          <Then>
+            <AvailableVersion
+              version={latest}
+              platform={currentPlatform}
+              arch={currentArch}
+            />
+          </Then>
+          <Else>
+            <AvailableVersion.Skeleton />
+          </Else>
+        </If>
+      </AppPage.Section>
       <AppPage.Section>
         <h2>
           <BookIcon />

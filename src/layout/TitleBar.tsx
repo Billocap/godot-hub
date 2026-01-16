@@ -3,29 +3,37 @@ import {
   BookOpenIcon,
   CopyIcon,
   GlobeIcon,
-  MenuIcon,
+  PanelLeftDashedIcon,
+  PanelLeftIcon,
   SquareIcon,
   Tally1Icon,
   XIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 
 import ModeSwitch from "@/components/ModeSwitch";
+import TooltipContainer from "@/components/Tooltip";
 import { useSideBar } from "@/hooks/useSideBar";
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
-  const { setCollapsed } = useSideBar();
+  const { collapsed, setCollapsed } = useSideBar();
 
   const appWindow = useMemo(() => getCurrentWindow(), []);
 
-  useEffect(() => {
-    appWindow.onResized(async () => {
-      const isMaximized = await appWindow.isMaximized().catch((_) => false);
+  const checkMaximized = useCallback(async () => {
+    const isMaximized = await appWindow.isMaximized().catch((_) => false);
 
-      setIsMaximized(isMaximized);
-    });
+    setIsMaximized(isMaximized);
+  }, [appWindow]);
+
+  useEffect(() => {
+    checkMaximized();
+  }, []);
+
+  useEffect(() => {
+    appWindow.onResized(checkMaximized);
   }, [appWindow]);
 
   return (
@@ -34,27 +42,43 @@ export default function TitleBar() {
       className="title-bar"
     >
       <div className="group">
-        <button
+        <TooltipContainer
+          as="button"
+          position="bottom"
+          tooltip={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           className="action"
           onClick={() => {
             setCollapsed((prev) => !prev);
           }}
         >
-          <MenuIcon size={16} />
-        </button>
+          <If condition={collapsed}>
+            <Then>
+              <PanelLeftDashedIcon size={16} />
+            </Then>
+            <Else>
+              <PanelLeftIcon size={16} />
+            </Else>
+          </If>
+        </TooltipContainer>
         <ModeSwitch className="mx-2" />
       </div>
       <div className="w-full" />
       <div className="group">
-        <a
+        <TooltipContainer
+          as="a"
+          position="bottom"
+          tooltip="Godot's Docs"
           href="https://docs.godotengine.org"
           target="_blank"
           rel="noopener noreferrer"
           className="action"
         >
           <BookOpenIcon size={16} />
-        </a>
-        <a
+        </TooltipContainer>
+        <TooltipContainer
+          as="a"
+          position="bottom"
+          tooltip="Godot's Site"
           href="https://godotengine.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -64,7 +88,7 @@ export default function TitleBar() {
             size={16}
             strokeWidth={1.5}
           />
-        </a>
+        </TooltipContainer>
       </div>
       <div className="group">
         <button

@@ -9,7 +9,7 @@ import { Else, If, Then } from "react-if";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import Spinner from "@/components/Spinner";
-import Tooltip from "@/components/Tooltip";
+import TooltipContainer from "@/components/Tooltip";
 import VersionController from "@/controllers/VersionController";
 import { useVersions } from "@/hooks/controllers/useVersions";
 
@@ -25,7 +25,7 @@ export default function InstalledVersion({ version }: InstalledVersionProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="w-full flex flex-col items-stretch gap-2 overflow-hidden">
-        <Tooltip
+        <TooltipContainer
           as="span"
           position="right"
           tooltip="Click to open"
@@ -35,8 +35,8 @@ export default function InstalledVersion({ version }: InstalledVersionProps) {
           <FolderIcon size={16} />
           {version.name}
           <Badge>{filesize(version.size)}</Badge>
-        </Tooltip>
-        <Tooltip
+        </TooltipContainer>
+        <TooltipContainer
           position="right"
           tooltip="Click to copy"
           className="cursor-pointer w-fit text-xs text-slate-500 flex text-ellipsis whitespace-nowrap"
@@ -45,7 +45,7 @@ export default function InstalledVersion({ version }: InstalledVersionProps) {
           }}
         >
           {version.path}
-        </Tooltip>
+        </TooltipContainer>
         <p className="text-xs text-slate-500">
           Created at: {moment(version.createdAt).format("HH:mm MM/DD/YYYY")}
         </p>

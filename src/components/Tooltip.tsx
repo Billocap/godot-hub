@@ -1,29 +1,20 @@
-import {
-  DetailedHTMLProps,
-  ElementType,
-  HTMLAttributes,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { When } from "react-if";
 
 import useBodyScroll from "@/hooks/useBodyScroll";
 import classList from "@/utils/classList";
 
-type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLDivElement>;
-
-interface TooltipProps extends DivProps {
-  as?: ElementType<DivProps>;
+interface TooltipProps<T> {
+  as?: T;
   tooltip?: string;
   position?: "top" | "left" | "bottom" | "right";
   anchor?: "start" | "center" | "end";
   tooltipClassName?: string;
 }
 
-export default function Tooltip({
-  as: Element = "div",
+export default function TooltipContainer<T extends React.ElementType = "div">({
+  as,
   children,
   position = "top",
   anchor = "center",
@@ -31,9 +22,15 @@ export default function Tooltip({
   tooltipClassName,
   onMouseEnter,
   onMouseLeave,
+  onClick,
+  onContextMenu,
   ...props
-}: TooltipProps) {
-  const wrapper = useRef<HTMLDivElement>(null);
+}: TooltipProps<T> &
+  Omit<React.ComponentPropsWithoutRef<T>, keyof TooltipProps<T>>) {
+  const Element = as ?? "div";
+
+  const wrapper = useRef<T>(null);
+
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [tooltipStyle, setTooltipStyle] = useState({});
 
@@ -47,36 +44,19 @@ export default function Tooltip({
   const positionTooltip = () => {
     const node = wrapper.current;
 
-    if (node) {
+    if (node && node instanceof HTMLElement) {
       const boundingBox = node.getBoundingClientRect();
-      const style: Record<string, any> = {};
+      const style: Record<string, number> = {};
+      const size = boundingBox[isVertical ? "width" : "height"];
+      const factor = anchor === "end" ? 1 : 0.5;
+      const correction = anchor !== "start" ? size * factor : 0;
 
       style[isVertical ? "top" : "left"] = boundingBox[position] + offset;
 
       if (isVertical) {
-        style.left = boundingBox.left;
-
-        switch (anchor) {
-          case "center":
-            style.left += boundingBox.width * 0.5;
-            break;
-
-          case "end":
-            style.left += boundingBox.width;
-            break;
-        }
+        style.left = boundingBox.left + correction;
       } else {
-        style.top = boundingBox.top;
-
-        switch (anchor) {
-          case "center":
-            style.top += boundingBox.height * 0.5;
-            break;
-
-          case "end":
-            style.top += boundingBox.height;
-            break;
-        }
+        style.top = boundingBox.top + correction;
       }
 
       setTooltipStyle(style);
@@ -91,17 +71,27 @@ export default function Tooltip({
 
   return (
     <Element
-      ref={wrapper}
-      onMouseEnter={(e) => {
+      ref={wrapper as any}
+      onMouseEnter={(e: any) => {
         setIsTooltipVisible(true);
         positionTooltip();
 
         if (onMouseEnter) onMouseEnter(e);
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: any) => {
         setIsTooltipVisible(false);
 
         if (onMouseLeave) onMouseLeave(e);
+      }}
+      onClick={(e: any) => {
+        setIsTooltipVisible(false);
+
+        if (onClick) onClick(e);
+      }}
+      onContextMenu={(e: any) => {
+        setIsTooltipVisible(false);
+
+        if (onContextMenu) onContextMenu(e);
       }}
       {...props}
     >

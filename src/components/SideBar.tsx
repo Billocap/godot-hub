@@ -5,7 +5,7 @@ import { useSideBar } from "@/hooks/useSideBar";
 import AppHeader from "@/layout/AppHeader";
 import classList from "@/utils/classList";
 
-import Tooltip from "./Tooltip";
+import TooltipContainer from "./Tooltip";
 
 interface SideBarProps {
   children: ReactNode;
@@ -36,7 +36,7 @@ SideBar.Selector = function ({ icon: Icon, children }: SelectorProps) {
   const { collapsed } = useSideBar();
 
   return (
-    <Tooltip
+    <TooltipContainer
       as={Tab}
       tooltip={children}
       position="right"
@@ -50,6 +50,6 @@ SideBar.Selector = function ({ icon: Icon, children }: SelectorProps) {
       >
         {children}
       </span>
-    </Tooltip>
+    </TooltipContainer>
   );
 };

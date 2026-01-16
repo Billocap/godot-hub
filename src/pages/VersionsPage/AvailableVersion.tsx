@@ -1,8 +1,14 @@
+import {
+  SiDotnet,
+  SiGithub,
+  SiGodotengine,
+} from "@icons-pack/react-simple-icons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { filesize } from "filesize";
 import {
   ArrowBigDownIcon,
   ArrowBigUpIcon,
+  BookOpenIcon,
   FolderIcon,
   FolderSearchIcon,
   LinkIcon,
@@ -11,12 +17,10 @@ import moment from "moment";
 import { useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 
-import DotNetLogo from "@/assets/dotnet-tile.svg?react";
-import GodotLogo from "@/assets/godot-dark.svg?react";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import Spinner from "@/components/Spinner";
-import Tooltip from "@/components/Tooltip";
+import TooltipContainer from "@/components/Tooltip";
 import { useSettings } from "@/hooks/controllers/useSettings";
 import { useVersions } from "@/hooks/controllers/useVersions";
 
@@ -38,7 +42,7 @@ function Asset({ asset, version, children }: AssetProps) {
         {children}
         {filesize(asset.size)}
       </span>
-      <Tooltip tooltip="Install">
+      <TooltipContainer tooltip="Install">
         <Button
           disabled={isInstalling || asset.id in installing}
           size="small"
@@ -71,8 +75,8 @@ function Asset({ asset, version, children }: AssetProps) {
             </Else>
           </If>
         </Button>
-      </Tooltip>
-      <Tooltip tooltip="Install at">
+      </TooltipContainer>
+      <TooltipContainer tooltip="Install at">
         <Button
           disabled={isInstalling || asset.id in installing}
           size="small"
@@ -109,7 +113,7 @@ function Asset({ asset, version, children }: AssetProps) {
             </Else>
           </If>
         </Button>
-      </Tooltip>
+      </TooltipContainer>
     </div>
   );
 }
@@ -185,15 +189,32 @@ export default function AvailableVersion({
     <div className="overflow-hidden flex items-center justify-between">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
-        <a
-          href={version.html_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 w-fit underline"
-        >
-          <LinkIcon size={16} />
+        <div className="flex items-center gap-2 w-fit">
           {version.name}
-        </a>
+          <TooltipContainer
+            as="a"
+            position="top"
+            tooltip="Github"
+            href={version.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SiGithub
+              className="icon"
+              size={16}
+            />
+          </TooltipContainer>
+          <TooltipContainer
+            as="a"
+            position="top"
+            tooltip="Changelog"
+            href={`https://godotengine.github.io/godot-interactive-changelog/#${version.name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <BookOpenIcon size={16} />
+          </TooltipContainer>
+        </div>
         <div className="flex items-center gap-1">
           <Badge>
             <ArrowBigUpIcon size={12} />
@@ -223,7 +244,7 @@ export default function AvailableVersion({
             asset={asset}
             version={version.name}
           >
-            <GodotLogo className="size-5 text-slate-500" />
+            <SiGodotengine className="size-5 text-slate-500" />
           </Asset>
         ))}
         {monoAssets.map((asset) => (
@@ -232,7 +253,7 @@ export default function AvailableVersion({
             asset={asset}
             version={`${version.name}-mono`}
           >
-            <DotNetLogo className="size-5 text-slate-500" />
+            <SiDotnet className="size-5 text-slate-500" />
           </Asset>
         ))}
       </div>
