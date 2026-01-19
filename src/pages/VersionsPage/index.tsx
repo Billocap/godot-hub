@@ -144,7 +144,7 @@ export default function VersionPage({ selected }: VersionPageProps) {
     }
 
     return [];
-  }, [availableVersions, pseudoPage, isCached, selected]);
+  }, [availableVersions, pseudoPage, isCached]);
 
   const canPaginate = useMemo(() => {
     return !availableVersions.isFetching && availableVersions.hasNextPage;
