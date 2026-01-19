@@ -1,8 +1,4 @@
-import {
-  useInfiniteQuery,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
@@ -16,7 +12,7 @@ import {
   FolderSearchIcon,
   RefreshCwIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Else, If, Then, When } from "react-if";
 
 import Button from "@/components/Button";
@@ -39,27 +35,9 @@ const repo = {
 
 const PER_PAGE = 15;
 
-interface VersionPageProps {
-  selected: boolean;
-}
-
-export default function VersionPage({ selected }: VersionPageProps) {
+export default function VersionPage() {
   const { settings, dispatchSettings } = useSettings();
   const { installing, installedVersions, updateInstalled } = useVersions();
-  const [pseudoPage, setPseudoPage] = useState(1);
-
-  const queryClient = useQueryClient();
-  const isCached = useMemo(() => {
-    const cache = queryClient.getQueryCache().find({
-      queryKey: ["available-versions"],
-    });
-
-    return cache !== undefined;
-  }, [queryClient]);
-
-  useEffect(() => {
-    if (!selected) setPseudoPage(1);
-  }, [selected]);
 
   const currentPlatform = useMemo(() => {
     const p = platform();
@@ -140,39 +118,31 @@ export default function VersionPage({ selected }: VersionPageProps) {
         versions.push(...page.data);
       }
 
-      return isCached ? versions.slice(0, pseudoPage * PER_PAGE) : versions;
+      return versions;
     }
 
     return [];
-  }, [availableVersions, pseudoPage, isCached]);
+  }, [availableVersions]);
 
   const canPaginate = useMemo(() => {
     return !availableVersions.isFetching && availableVersions.hasNextPage;
   }, [availableVersions]);
 
-  const canPaginateCache = useMemo(() => {
-    return isCached && versions.length >= pseudoPage * PER_PAGE;
-  }, [isCached, pseudoPage, versions]);
-
   useBodyScroll(
     {
-      canListen: canPaginate || canPaginateCache,
+      canListen: canPaginate,
       handler(e) {
-        if (canPaginate || canPaginateCache) {
+        if (canPaginate) {
           const target = e.target as HTMLDivElement;
           const scrollHeight = target.scrollHeight - target.clientHeight - 500;
 
           if (target.scrollTop >= scrollHeight) {
-            if (canPaginateCache) {
-              setPseudoPage((page) => page + 1);
-            } else {
-              availableVersions.fetchNextPage();
-            }
+            availableVersions.fetchNextPage();
           }
         }
       },
     },
-    [availableVersions, canPaginate, canPaginateCache],
+    [availableVersions, canPaginate],
   );
 
   return (
@@ -304,16 +274,12 @@ export default function VersionPage({ selected }: VersionPageProps) {
           </Button>
         </h2>
         {versions.map((version) => (
-          <When
+          <AvailableVersion
             key={version.id}
-            condition={version.name}
-          >
-            <AvailableVersion
-              version={version}
-              platform={currentPlatform}
-              arch={currentArch}
-            />
-          </When>
+            version={version}
+            platform={currentPlatform}
+            arch={currentArch}
+          />
         ))}
         <When condition={availableVersions.isFetching}>
           {new Array(PER_PAGE).fill(0).map((_, id) => (

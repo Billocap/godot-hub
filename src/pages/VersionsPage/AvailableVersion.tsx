@@ -58,7 +58,7 @@ function Asset({ asset, version, children }: AssetProps) {
                   asset.id,
                   version,
                   asset.browser_download_url,
-                  asset.name
+                  asset.name,
                 );
               } finally {
                 setIsInstalling(false);
@@ -96,7 +96,7 @@ function Asset({ asset, version, children }: AssetProps) {
                   asset.id,
                   version,
                   asset.browser_download_url,
-                  asset.name
+                  asset.name,
                 );
               } finally {
                 setIsInstalling(false);
@@ -151,10 +151,16 @@ export default function AvailableVersion({
   platform,
   arch,
 }: AvailableVersionProps) {
+  const name = useMemo(() => {
+    if (version.name.length <= 0) return version.tag_name;
+
+    return version.name;
+  }, [version]);
+
   const regularAssets = useMemo(() => {
     const assets: any[] = [];
     const regex = new RegExp(
-      `Godot_v${version.name.replace("-", "[\\-_]")}_${platform}`
+      `Godot_v${name.replace("-", "[\\-_]")}_${platform}`,
     );
 
     for (const asset of version.assets) {
@@ -166,12 +172,12 @@ export default function AvailableVersion({
     }
 
     return assets;
-  }, [version, platform, arch]);
+  }, [name, version, platform, arch]);
 
   const monoAssets = useMemo(() => {
     const assets: any[] = [];
     const regex = new RegExp(
-      `Godot_v${version.name.replace("-", "[\\-_]")}_mono_${platform}`
+      `Godot_v${name.replace("-", "[\\-_]")}_mono_${platform}`,
     );
 
     for (const asset of version.assets) {
@@ -183,14 +189,14 @@ export default function AvailableVersion({
     }
 
     return assets;
-  }, [version, platform, arch]);
+  }, [name, version, platform, arch]);
 
   return (
     <div className="overflow-hidden flex items-center justify-between">
       {/* Version Info */}
       <div className="flex flex-col items-stretch gap-1">
         <div className="flex items-center gap-2 w-fit">
-          {version.name}
+          {name}
           <TooltipContainer
             as="a"
             position="top"
