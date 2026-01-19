@@ -23,7 +23,7 @@ export default function InstalledPage() {
 
       return nodePath.basename(path);
     },
-    [currentPlatform]
+    [currentPlatform],
   );
 
   return (

@@ -1,7 +1,7 @@
 import { DetailedHTMLProps, FC, HTMLAttributes } from "react";
+import { When } from "react-if";
 
 import classList from "@/utils/classList";
-import { When } from "react-if";
 
 interface IconProps {
   size?: number;

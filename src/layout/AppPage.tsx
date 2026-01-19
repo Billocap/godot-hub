@@ -2,7 +2,7 @@ import { DetailedHTMLProps, FC, HTMLAttributes, ReactNode } from "react";
 import { When } from "react-if";
 
 import classList from "@/utils/classList";
-import { TabPanel } from "@headlessui/react";
+import { TabPanel, TabPanelProps } from "@headlessui/react";
 
 type DivProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
@@ -13,7 +13,7 @@ interface IconProps {
   size?: number;
 }
 
-interface AppPageProps {
+export interface AppPageProps extends TabPanelProps {
   title: string;
   description?: string;
   icon: FC<IconProps>;
@@ -25,9 +25,14 @@ export default function AppPage({
   description,
   children,
   icon: Icon,
+  className,
+  ...props
 }: AppPageProps) {
   return (
-    <TabPanel className="content">
+    <TabPanel
+      className={classList("content", className)}
+      {...props}
+    >
       {/* Header */}
       <div className="flex flex-col items-stretch gap-4">
         <h1>

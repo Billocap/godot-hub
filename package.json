@@ -37,6 +37,7 @@
   "devDependencies": {
     "@storybook/addon-styling-webpack": "^3.0.0",
     "@storybook/react-vite": "^10.1.11",
+    "@tanstack/react-query": "^5.90.18",
     "@tauri-apps/cli": "^2.9.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",

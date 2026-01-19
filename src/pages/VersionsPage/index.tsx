@@ -1,3 +1,8 @@
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { arch, platform } from "@tauri-apps/plugin-os";
@@ -32,24 +37,29 @@ const repo = {
   repo: "godot",
 };
 
-interface Pagination {
-  page: number;
-  canPaginate: boolean;
-}
-
 const PER_PAGE = 15;
 
-export default function VersionPage() {
+interface VersionPageProps {
+  selected: boolean;
+}
+
+export default function VersionPage({ selected }: VersionPageProps) {
   const { settings, dispatchSettings } = useSettings();
   const { installing, installedVersions, updateInstalled } = useVersions();
+  const [pseudoPage, setPseudoPage] = useState(1);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [versions, setVersions] = useState<any[]>([]);
-  const [latest, setLatest] = useState<any>(null);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    canPaginate: true,
-  });
+  const queryClient = useQueryClient();
+  const isCached = useMemo(() => {
+    const cache = queryClient.getQueryCache().find({
+      queryKey: ["available-versions"],
+    });
+
+    return cache !== undefined;
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!selected) setPseudoPage(1);
+  }, [selected]);
 
   const currentPlatform = useMemo(() => {
     const p = platform();
@@ -67,8 +77,8 @@ export default function VersionPage() {
   }, []);
 
   const currentArch = useMemo(() => {
-    const a = arch();
     const p = currentPlatform;
+    const a = arch();
 
     switch (a) {
       case "x86":
@@ -85,54 +95,84 @@ export default function VersionPage() {
     }
   }, [currentPlatform]);
 
-  const fetchLatest = async () => {
-    const { data } = await octokit.repos.getLatestRelease({
-      ...repo,
-    });
+  const latest = useQuery<Record<string, any>>({
+    staleTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: false,
+    queryKey: ["latest-version"],
+    queryFn: async () => {
+      const { data } = await octokit.repos.getLatestRelease(repo);
 
-    setLatest(data);
-  };
+      return data;
+    },
+  });
 
-  const fetchVersions = async (page = 1) => {
-    setIsLoading(true);
+  const availableVersions = useInfiniteQuery({
+    staleTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
+    queryKey: ["available-versions"],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam: page = 1 }) => {
+      const { data, headers } = await octokit.repos.listReleases({
+        ...repo,
+        page,
+        per_page: PER_PAGE,
+      });
 
-    const { data, headers } = await octokit.repos.listReleases({
-      ...repo,
-      page,
-      per_page: PER_PAGE,
-    });
+      const response: Record<string, any> = { data };
 
-    setPagination({
-      page,
-      canPaginate: headers.link?.includes('rel="next"') ?? false,
-    });
+      if (headers.link?.includes('rel="next"')) response.nextCursor = page + 1;
 
-    setVersions((prev) => (page > 1 ? [...prev, ...data] : data));
+      return response;
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextCursor;
+    },
+  });
 
-    setIsLoading(false);
-  };
+  const versions = useMemo(() => {
+    if (availableVersions.data) {
+      const versions = [];
 
-  useEffect(() => {
-    fetchLatest();
+      for (const page of availableVersions.data.pages) {
+        versions.push(...page.data);
+      }
 
-    fetchVersions();
-  }, []);
+      return isCached ? versions.slice(0, pseudoPage * PER_PAGE) : versions;
+    }
+
+    return [];
+  }, [availableVersions, pseudoPage, isCached, selected]);
+
+  const canPaginate = useMemo(() => {
+    return !availableVersions.isFetching && availableVersions.hasNextPage;
+  }, [availableVersions]);
+
+  const canPaginateCache = useMemo(() => {
+    return isCached && versions.length >= pseudoPage * PER_PAGE;
+  }, [isCached, pseudoPage, versions]);
 
   useBodyScroll(
     {
-      canListen: !isLoading && pagination.canPaginate,
+      canListen: canPaginate || canPaginateCache,
       handler(e) {
-        if (!isLoading && pagination.canPaginate) {
+        if (canPaginate || canPaginateCache) {
           const target = e.target as HTMLDivElement;
           const scrollHeight = target.scrollHeight - target.clientHeight - 500;
 
           if (target.scrollTop >= scrollHeight) {
-            fetchVersions(pagination.page + 1);
+            if (canPaginateCache) {
+              setPseudoPage((page) => page + 1);
+            } else {
+              availableVersions.fetchNextPage();
+            }
           }
         }
       },
     },
-    [isLoading, pagination]
+    [availableVersions, canPaginate, canPaginateCache],
   );
 
   return (
@@ -173,9 +213,13 @@ export default function VersionPage() {
               });
 
               if (folder) {
-                dispatchSettings(() => {
-                  settings.versionsFolder = folder;
-                }).finally(updateInstalled);
+                try {
+                  await dispatchSettings(() => {
+                    settings.versionsFolder = folder;
+                  });
+                } finally {
+                  updateInstalled();
+                }
               }
             }}
           >
@@ -219,29 +263,27 @@ export default function VersionPage() {
           <BookmarkIcon />
           <p className="w-full">Latest Version</p>
           <Button
-            disabled={latest === null}
+            disabled={latest.isFetching}
             size="tiny"
             variant="secondary"
             onClick={() => {
-              setLatest(null);
-
-              fetchLatest();
+              latest.refetch();
             }}
           >
             <RefreshCwIcon size={12} />
             Refresh
           </Button>
         </h2>
-        <If condition={latest}>
+        <If condition={latest.isFetching}>
           <Then>
+            <AvailableVersion.Skeleton />
+          </Then>
+          <Else>
             <AvailableVersion
-              version={latest}
+              version={latest.data}
               platform={currentPlatform}
               arch={currentArch}
             />
-          </Then>
-          <Else>
-            <AvailableVersion.Skeleton />
           </Else>
         </If>
       </AppPage.Section>
@@ -250,12 +292,11 @@ export default function VersionPage() {
           <BookIcon />
           <p className="w-full">Available Versions</p>
           <Button
+            disabled={availableVersions.isFetching}
             size="tiny"
             variant="secondary"
             onClick={() => {
-              setVersions([]);
-
-              fetchVersions();
+              availableVersions.refetch();
             }}
           >
             <RefreshCwIcon size={12} />
@@ -274,7 +315,7 @@ export default function VersionPage() {
             />
           </When>
         ))}
-        <When condition={isLoading}>
+        <When condition={availableVersions.isFetching}>
           {new Array(PER_PAGE).fill(0).map((_, id) => (
             <AvailableVersion.Skeleton key={id} />
           ))}
