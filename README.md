@@ -1,4 +1,6 @@
-# ![logo](public/assets/logo-dark.png) Godot Hub
+# <img src="public/assets/logo-dark.png" width="32" height="32" /> Godot Hub
+
+Manage your Godot installations.
 
 ![demo-light](public/assets/demo-light.png)
 
