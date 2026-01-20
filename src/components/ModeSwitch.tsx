@@ -1,6 +1,6 @@
 import { MoonStarIcon, SunIcon } from "lucide-react";
-import { useEffect } from "react";
 
+import { useTheme } from "@/hooks/useTheme";
 import classList from "@/utils/classList";
 
 interface ModeSwitchProps {
@@ -8,31 +8,13 @@ interface ModeSwitchProps {
 }
 
 export default function ModeSwitch({ className }: ModeSwitchProps) {
-  const toggleMode = (theme = "dark") => {
-    document.body.dataset.theme = theme;
-
-    localStorage.setItem("theme", theme);
-  };
-
-  useEffect(() => {
-    const theme = localStorage.getItem("theme");
-
-    if (theme === null) {
-      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      toggleMode(isDark ? "dark" : "light");
-    } else {
-      toggleMode(theme);
-    }
-  }, []);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div
       className={classList("mode-switch", className)}
       onClick={() => {
-        const theme = localStorage.getItem("theme");
-
-        toggleMode(theme === "dark" ? "light" : "dark");
+        toggleTheme(theme === "dark" ? "light" : "dark");
       }}
     >
       <div className="swatch" />

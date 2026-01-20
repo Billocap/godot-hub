@@ -1,12 +1,13 @@
-import { SiGodotengine } from "@icons-pack/react-simple-icons";
 import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 import Badge from "@/components/Badge";
 import { useSideBar } from "@/hooks/useSideBar";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function AppHeader() {
   const { collapsed } = useSideBar();
+  const { theme } = useTheme();
 
   const [version, setVersion] = useState("");
 
@@ -19,7 +20,10 @@ export default function AppHeader() {
       className="app-header"
       data-collapsed={collapsed ? true : undefined}
     >
-      <SiGodotengine className="logo" />
+      <img
+        src={`/assets/logo-${theme}.png`}
+        className="logo"
+      />
       <div className="text">
         <span className="hidden lg:inline">Godot </span>
         Hub
